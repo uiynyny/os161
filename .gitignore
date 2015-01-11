@@ -1,1 +1,8 @@
+.depend
 defs.mk
+includelinks
+*.o
+
+kern/compile/ASST*/kernel
+kern/compile/ASST*/vers.c
+kern/compile/ASST*/version

@@ -15,17 +15,17 @@ Standard C Library (libc, -lc)
 #include &lt;unistd.h&gt;<br>
 <br>
 int<br>
-__vprintf(void (*<em>func</em>)(void *<em>clientdata</em>, 
-				const char *<em>str</em>, 
-				size_t <em>len</em>), 
+__vprintf(void (*<em>func</em>)(void *<em>clientdata</em>,
+				const char *<em>str</em>,
+				size_t <em>len</em>),
           void *<em>clientdata</em>, const char *<em>format</em>,
 	  va_list)
 
 <h3>Description</h3>
 
 In OS/161, __vprintf is the back-end engine for
-<A HREF=printf.html>printf</A> and printf-like functions. 
-Note that it is not portable - application code should use 
+<A HREF=printf.html>printf</A> and printf-like functions.
+Note that it is not portable - application code should use
 <A HREF=snprintf.html>snprintf or vsnprintf</A> when implementing
 their own printf-like functions. This documentation is provided for
 use when extending OS/161 itself.

@@ -3,16 +3,16 @@
 #include <synchprobs.h>
 #include <synch.h>
 
-/* 
+/*
  * This simple default synchronization mechanism allows only creature at a time to
  * eat.   The globalCatMouseSem is used as a a lock.   We use a semaphore
  * rather than a lock so that this code will work even before locks are implemented.
  */
 
-/* 
+/*
  * Replace this default synchronization mechanism with your own (better) mechanism
  * needed for your solution.   Your mechanism may use any of the available synchronzation
- * primitives, e.g., semaphores, locks, condition variables.   You are also free to 
+ * primitives, e.g., semaphores, locks, condition variables.   You are also free to
  * declare other global variables if your solution requires them.
  */
 
@@ -22,12 +22,12 @@
 static struct semaphore *globalCatMouseSem;
 
 
-/* 
+/*
  * The CatMouse simulation will call this function once before any cat or
  * mouse tries to each.
  *
  * You can use it to initialize synchronization and other variables.
- * 
+ *
  * parameters: the number of bowls
  */
 void
@@ -43,7 +43,7 @@ catmouse_sync_init(int bowls)
   return;
 }
 
-/* 
+/*
  * The CatMouse simulation will call this function once after all cat
  * and mouse simulations are finished.
  *
@@ -74,7 +74,7 @@ catmouse_sync_cleanup(int bowls)
  */
 
 void
-cat_before_eating(unsigned int bowl) 
+cat_before_eating(unsigned int bowl)
 {
   /* replace this default implementation with your own implementation of cat_before_eating */
   (void)bowl;  /* keep the compiler from complaining about an unused parameter */
@@ -96,7 +96,7 @@ cat_before_eating(unsigned int bowl)
  */
 
 void
-cat_after_eating(unsigned int bowl) 
+cat_after_eating(unsigned int bowl)
 {
   /* replace this default implementation with your own implementation of cat_after_eating */
   (void)bowl;  /* keep the compiler from complaining about an unused parameter */
@@ -117,7 +117,7 @@ cat_after_eating(unsigned int bowl)
  */
 
 void
-mouse_before_eating(unsigned int bowl) 
+mouse_before_eating(unsigned int bowl)
 {
   /* replace this default implementation with your own implementation of mouse_before_eating */
   (void)bowl;  /* keep the compiler from complaining about an unused parameter */
@@ -139,7 +139,7 @@ mouse_before_eating(unsigned int bowl)
  */
 
 void
-mouse_after_eating(unsigned int bowl) 
+mouse_after_eating(unsigned int bowl)
 {
   /* replace this default implementation with your own implementation of mouse_after_eating */
   (void)bowl;  /* keep the compiler from complaining about an unused parameter */

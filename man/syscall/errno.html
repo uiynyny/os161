@@ -36,15 +36,15 @@ symbolic names are used in source code; the textual expansions are
 printed out when errors are reported to a user.
 <p>
 
-The textual expansions can be retrieved with 
-<A HREF=../libc/strerror.html>strerror</A> or printed with 
-<A HREF=../libc/err.html>err</A> or <A HREF=../libc/warn.html>warn</A>. 
+The textual expansions can be retrieved with
+<A HREF=../libc/strerror.html>strerror</A> or printed with
+<A HREF=../libc/err.html>err</A> or <A HREF=../libc/warn.html>warn</A>.
 <p>
 
 <h3>Symbolic names</h3>
 
 The following symbolic errors are defined in the OS/161 base system.
-You may add more at your pleasure; but be sure to read the notes in 
+You may add more at your pleasure; but be sure to read the notes in
 the file kern/errno.h that defines them.
 
 <blockquote>
@@ -189,7 +189,7 @@ the file kern/errno.h that defines them.
 	for read or vice-versa.</td></tr>
 
 <tr><td valign=top>EIOCTL</td>
-<td>Invalid or inappropriate ioctl: an operation requested via the 
+<td>Invalid or inappropriate ioctl: an operation requested via the
 	<A HREF=../syscall/ioctl.html>ioctl</A> system call was not
 	defined or could not be performed on the indicated
 	object. In Unix, for historical reasons, this is ENOTTY, with

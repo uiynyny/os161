@@ -88,7 +88,7 @@ dorm(int fd)
 }
 
 static
-int 
+int
 same(const char *a, const char *b, int len)
 {
 	while (len-- > 0) {

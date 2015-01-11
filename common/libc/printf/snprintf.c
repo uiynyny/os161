@@ -49,7 +49,7 @@
 
 
 /*
- * Context structure for snprintf: buffer to print into, maximum 
+ * Context structure for snprintf: buffer to print into, maximum
  * length, and index of the next character to write.
  *
  * Note that while the length argument to snprintf includes space for

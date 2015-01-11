@@ -63,7 +63,7 @@ read_data(unsigned int array[], unsigned int start, const char *array_name)
 	for (ref = 0; ref < NUM_REFS-1; ref++) {
 		for (i=0; i<ELEMS; i++) {
 			if (array[i] != (start + (i / ELEMS_PER_PAGE))) {
-				printf("FAILED in file %s at line %d %s[%d] = %u != %u ref = %d\n", 
+				printf("FAILED in file %s at line %d %s[%d] = %u != %u ref = %d\n",
                 __FILE__, __LINE__, array_name, i, array[i], i, ref+1);
 				exit(1);
 			}

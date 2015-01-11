@@ -30,7 +30,7 @@
 /*
  * filetest.c
  *
- * 	Tests the filesystem by opening, writing to and reading from a 
+ * 	Tests the filesystem by opening, writing to and reading from a
  * 	user specified file.
  *
  * This should run (on SFS) even before the file system assignment is started.
@@ -72,7 +72,7 @@ main(int argc, char *argv[])
 	}
 
 	fd = open(argv[1], O_RDONLY);
-	if (fd<0) { 
+	if (fd<0) {
 		err(1, "%s: open for read", argv[1]);
 	}
 

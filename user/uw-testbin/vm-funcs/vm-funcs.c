@@ -213,7 +213,7 @@ FUNC(290); FUNC(291); FUNC(292); FUNC(293); FUNC(294);
 FUNC(295); FUNC(296); FUNC(297); FUNC(298); FUNC(299);
 
 #define CALLFUNC(i) \
-	func_##i() 
+	func_##i()
 
 void
 call_all(void)

@@ -27,7 +27,7 @@
  * SUCH DAMAGE.
  */
 
-/* matmult-orig.c 
+/* matmult-orig.c
  *    Test program to do matrix multiplication on large arrays.
  *
  *    Intended to stress virtual memory system.
@@ -48,8 +48,8 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#define Dim 	360	/* sum total of the arrays doesn't fit in 
-			 * physical memory 
+#define Dim 	360	/* sum total of the arrays doesn't fit in
+			 * physical memory
 			 */
 
 #define RIGHT  46397160		/* correct answer */

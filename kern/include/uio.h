@@ -72,14 +72,14 @@ struct uio {
  *   (1) set up uio_iov to point to the buffer(s) you want to transfer
  *       to, and set uio_iovcnt to the number of such buffers;
  *   (2) initialize uio_offset as desired;
- *   (3) initialize uio_resid to the total amount of data that can be 
+ *   (3) initialize uio_resid to the total amount of data that can be
  *       transferred through this uio;
  *   (4) set up uio_seg and uio_rw correctly;
  *   (5) if uio_seg is UIO_SYSSPACE, set uio_space to NULL; otherwise,
  *       initialize uio_space to the address space in which the buffer
  *       should be found.
  *
- * After calling, 
+ * After calling,
  *   (1) the contents of uio_iov and uio_iovcnt may be altered and
  *       should not be interpreted;
  *   (2) uio_offset will have been incremented by the amount transferred;

@@ -69,7 +69,7 @@
 #define CST_BEV      0x00400000 /* bootstrap exception vectors flag */
 
 /*
- * Fields of the c0_cause register 
+ * Fields of the c0_cause register
  */
 #define CCA_UTLB   0x00000001   /* true if UTLB exception (set by our asm) */
 #define CCA_CODE   0x0000003c   /* EX_foo in trapframe.h */

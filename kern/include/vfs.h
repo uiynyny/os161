@@ -47,7 +47,7 @@ struct fs;     /* abstract structure for a filesystem (fs.h) */
 struct vnode;  /* abstract structure for an on-disk file (vnode.h) */
 
 /*
- * VFS layer low-level operations. 
+ * VFS layer low-level operations.
  * See vnode.h for direct operations on vnodes.
  * See fs.h for direct operations on filesystems/devices.
  *
@@ -85,7 +85,7 @@ int vfs_lookparent(char *path, struct vnode **result,
  * VFS layer high-level operations on pathnames
  * Because namei may destroy pathnames, these all may too.
  *
- *    vfs_open         - Open or create a file. FLAGS/MODE per the syscall. 
+ *    vfs_open         - Open or create a file. FLAGS/MODE per the syscall.
  *    vfs_readlink     - Read contents of a symlink into a uio.
  *    vfs_symlink      - Create a symlink PATH containing contents CONTENTS.
  *    vfs_mkdir        - Create a directory. MODE per the syscall.
@@ -117,7 +117,7 @@ int vfs_getcwd(struct uio *buf);
 /*
  * Misc
  *
- *    vfs_bootstrap - Call during system initialization to allocate 
+ *    vfs_bootstrap - Call during system initialization to allocate
  *                    structures.
  *
  *    vfs_setbootfs - Set the filesystem that paths beginning with a
@@ -148,7 +148,7 @@ int vfs_getcwd(struct uio *buf);
  *                    mounting filesystems on disk devices.
  *
  *    vfs_mount     - Attempt to mount a filesystem on a device. The
- *                    device named by DEVNAME will be looked up and 
+ *                    device named by DEVNAME will be looked up and
  *                    passed, along with DATA, to the supplied function
  *                    MOUNTFUNC, which should create a struct fs and
  *                    return it in RESULT.
@@ -167,9 +167,9 @@ void vfs_clearbootfs(void);
 int vfs_adddev(const char *devname, struct device *dev, int mountable);
 int vfs_addfs(const char *devname, struct fs *fs);
 
-int vfs_mount(const char *devname, void *data, 
+int vfs_mount(const char *devname, void *data,
 	      int (*mountfunc)(void *data,
-			       struct device *dev, 
+			       struct device *dev,
 			       struct fs **result));
 int vfs_unmount(const char *devname);
 int vfs_unmountall(void);

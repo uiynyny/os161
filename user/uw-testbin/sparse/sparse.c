@@ -1,4 +1,4 @@
-/* 
+/*
  * sparse.c
  *
  * 	This program declares a large array, but only uses a small
@@ -12,8 +12,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* 
- * set these to match the page size of the 
+/*
+ * set these to match the page size of the
  * machine and the number of pages of physical memory
  * in the machine.
  */
@@ -36,18 +36,18 @@ main()
 	for (i=0; i<ArraySize; i+=(10*PageSize)) {
 	  sparse[i]= 'a';
 	}
-	
+
 	printf("stage [1] done\n");
-	
+
 	/* increment each location 5 times */
 	for(j=0; j<5; j++) {
 	  for (i=0; i<ArraySize; i+=(10*PageSize)) {
 	    sparse[i] += 1;
 	  }
 	}
-	
+
 	printf("stage [2] done\n");
-	
+
 	/* check the values that were written */
 	/* increment each location 5 times */
 	for (i=0; i<ArraySize; i+=(10*PageSize)) {
@@ -58,7 +58,7 @@ main()
 	}
 
 	printf("SUCCESS\n");
-	
+
 	return 0;
 }
 

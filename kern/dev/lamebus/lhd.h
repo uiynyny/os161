@@ -42,12 +42,12 @@
  */
 struct lhd_softc {
 	/* Initialized by lower-level attach code */
-	void *lh_busdata;		/* The bus we're on */ 
+	void *lh_busdata;		/* The bus we're on */
 	uint32_t lh_buspos;		/* Our slot on that bus */
 	int lh_unit;			/* What number lhd we are */
 
 	/*
-	 * Initialized by config_lhd 
+	 * Initialized by config_lhd
 	 */
 
 	void *lh_buf;			/* Pointer to on-card I/O buffer */

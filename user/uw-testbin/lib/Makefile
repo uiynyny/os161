@@ -1,10 +1,10 @@
-# 
+#
 # include ../../../defs.mk
-# 
+#
 # SRCS+=testutils.c
-# 
+#
 # include ../../../mk/os161.lib.mk
-# 
+#
 # LIB=testutils
 
 #
@@ -15,7 +15,7 @@ TOP=../../..
 .include "$(TOP)/mk/os161.config.mk"
 
 SRCS+= testutils.c
-	
+
 # Name of the library.
 LIB=testutils
 

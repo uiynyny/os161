@@ -59,7 +59,7 @@
  *
  * If this were standard Unix, more prototypes would go in other
  * header files as well, as follows:
- * 
+ *
  *     waitpid:  sys/wait.h
  *     open:     fcntl.h or sys/fcntl.h
  *     reboot:   sys/reboot.h
@@ -73,14 +73,14 @@
  * in OS/161. This is the "mode" (file permissions) for a newly created
  * object. (With open, if no file is created, this is ignored, and the
  * call prototype is gimmicked so it doesn't have to be passed either.)
- * 
- * You should ignore these arguments in the OS/161 kernel unless you're
- * implementing security and file permissions. 
  *
- * If you are implementing security and file permissions and using a 
+ * You should ignore these arguments in the OS/161 kernel unless you're
+ * implementing security and file permissions.
+ *
+ * If you are implementing security and file permissions and using a
  * model different from Unix so that you need different arguments to
  * these calls, you may make appropriate changes, or define new syscalls
- * with different names and take the old ones out, or whatever. 
+ * with different names and take the old ones out, or whatever.
  *
  * As a general rule of thumb, however, while you can make as many new
  * syscalls of your own as you like, you shouldn't change the
@@ -119,7 +119,7 @@ __DEAD void _exit(int code);
 int execv(const char *prog, char *const *args);
 pid_t fork(void);
 int waitpid(pid_t pid, int *returncode, int flags);
-/* 
+/*
  * Open actually takes either two or three args: the optional third
  * arg is the file mode used for creation. Unless you're implementing
  * security and permissions, you can ignore it.

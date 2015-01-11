@@ -68,7 +68,7 @@ main()
   TEST_NOT_EQUAL(f1, f2, "fd f1 == f2");
 
   rc = read(f1, (char *) &intbuf, sizeof(intbuf));
-  TEST_EQUAL(rc, sizeof(intbuf), 
+  TEST_EQUAL(rc, sizeof(intbuf),
      "read from f1 does not read/return proper value");
   TEST_EQUAL(intbuf, i,
      "read from f1 did not get correct value");

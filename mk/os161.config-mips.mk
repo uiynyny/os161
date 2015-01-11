@@ -4,7 +4,7 @@
 #
 
 
-# 
+#
 # The MIPS toolchain for OS/161 is an ELF toolchain that by default
 # generates SVR4 ELF ABI complaint code. This means that by default
 # all code is PIC (position-independent code), which is all very well

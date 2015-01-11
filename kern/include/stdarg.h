@@ -66,7 +66,7 @@ int vsnprintf(char *buf, size_t maxlen, const char *fmt, va_list ap) __PF(3,0);
  * The strings passed to the function might not be null-terminated; the
  * supplied length should be used explicitly.
  */
-int __vprintf(void (*func)(void *clientdata, const char *str, size_t len), 
+int __vprintf(void (*func)(void *clientdata, const char *str, size_t len),
               void *clientdata, const char *format, va_list ap) __PF(3,0);
 
 

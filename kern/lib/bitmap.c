@@ -56,7 +56,7 @@ struct bitmap {
 struct bitmap *
 bitmap_create(unsigned nbits)
 {
-        struct bitmap *b; 
+        struct bitmap *b;
         unsigned words;
 
         words = DIVROUNDUP(nbits, BITS_PER_WORD);
@@ -80,7 +80,7 @@ bitmap_create(unsigned nbits)
 
                 KASSERT(nbits / BITS_PER_WORD == words-1);
                 KASSERT(overbits > 0 && overbits < BITS_PER_WORD);
-                
+
                 for (j=overbits; j<BITS_PER_WORD; j++) {
                         b->v[ix] |= ((WORD_TYPE)1 << j);
                 }
@@ -159,7 +159,7 @@ bitmap_unmark(struct bitmap *b, unsigned index)
 
 
 int
-bitmap_isset(struct bitmap *b, unsigned index) 
+bitmap_isset(struct bitmap *b, unsigned index)
 {
         unsigned ix;
         WORD_TYPE mask;

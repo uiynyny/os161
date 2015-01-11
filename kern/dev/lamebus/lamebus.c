@@ -341,7 +341,7 @@ lamebus_attach_interrupt(struct lamebus_softc *sc, int slot,
 
 	sc->ls_devdata[slot] = devdata;
 	sc->ls_irqfuncs[slot] = irqfunc;
-	
+
 	spinlock_release(&sc->ls_lock);
 }
 
@@ -366,7 +366,7 @@ lamebus_detach_interrupt(struct lamebus_softc *sc, int slot)
 
 	sc->ls_devdata[slot] = NULL;
 	sc->ls_irqfuncs[slot] = NULL;
-	
+
 	spinlock_release(&sc->ls_lock);
 }
 
@@ -413,7 +413,7 @@ lamebus_interrupt(struct lamebus_softc *lamebus)
 	 * slots to find the first interrupting device and call its
 	 * interrupt routine, no matter what that device is.
 	 *
-	 * Note that the entire LAMEbus uses only one on-cpu interrupt line. 
+	 * Note that the entire LAMEbus uses only one on-cpu interrupt line.
 	 * Thus, we do not use any on-cpu interrupt priority system either.
 	 */
 
@@ -475,7 +475,7 @@ lamebus_interrupt(struct lamebus_softc *lamebus)
 		/*
 		 * This slot is signalling an interrupt.
 		 */
-			
+
 		if ((lamebus->ls_slotsinuse & mask)==0) {
 			/*
 			 * No device driver is using this slot.
@@ -526,7 +526,7 @@ lamebus_interrupt(struct lamebus_softc *lamebus)
 	 * the system will make no progress. But we don't know how to
 	 * do that if there's no driver or no interrupt handler.
 	 *
-	 * So, if we get too many dud interrupts, panic, since it's 
+	 * So, if we get too many dud interrupts, panic, since it's
 	 * better to panic and reset than to hang.
 	 *
 	 * If we get through here without seeing any duds this time,

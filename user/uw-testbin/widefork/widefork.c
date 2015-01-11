@@ -23,7 +23,7 @@ int dofork(int);
 void dowait(int,int);
 
 int
-dofork(int childnum) 
+dofork(int childnum)
 {
   pid_t pid;
   pid = fork();

@@ -78,17 +78,17 @@ int
 can_bg(void)
 {
 	int i;
-	
+
 	for (i = 0; i < MAXBG; i++) {
 		if (bgpids[i] == 0) {
 			return 1;
 		}
 	}
-	
+
 	return 0;
 }
 
-/* 
+/*
  * remember_bg
  * sticks the pid in an open slot in the background array.  note the assert --
  * better check can_bg before calling this.
@@ -271,9 +271,9 @@ cmd_exit(int ac, char *av[])
 		printf("Usage: exit [code]\n");
 		return 1;
 	}
-	
+
 	exit(code);
-	
+
 	return 0; /* quell the compiler warning */
 }
 
@@ -406,12 +406,12 @@ docommand(char *buf)
 
 /*
  * getcmd
- * pulls valid characters off the console, filling the buffer.  
+ * pulls valid characters off the console, filling the buffer.
  * backspace deletes a character, simply by moving the position back.
  * a newline or carriage return breaks the loop, which terminates
  * the string and returns.
  *
- * if there's an invalid character or a backspace when there's nothing 
+ * if there's an invalid character or a backspace when there's nothing
  * in the buffer, putchars an alert (bell).
  */
 static
@@ -448,7 +448,7 @@ getcmd(char *buf, size_t len)
 		}
 	}
 	buf[pos] = 0;
-}	
+}
 
 /*
  * interactive
@@ -489,7 +489,7 @@ check_timing(void)
 	}
 }
 
-/* 
+/*
  * main
  * if there are no arguments, run interactively, otherwise, run a program
  * from within the shell, but immediately exit.

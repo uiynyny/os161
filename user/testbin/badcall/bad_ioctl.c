@@ -28,7 +28,7 @@
  */
 
 /*
- * ioctl 
+ * ioctl
  */
 
 #include <sys/types.h>

@@ -141,9 +141,9 @@ translate_err(struct emu_softc *sc, uint32_t code)
 {
 	switch (code) {
 	    case EMU_RES_SUCCESS: return 0;
-	    case EMU_RES_BADHANDLE: 
-	    case EMU_RES_BADOP: 
-	    case EMU_RES_BADSIZE: 
+	    case EMU_RES_BADHANDLE:
+	    case EMU_RES_BADOP:
+	    case EMU_RES_BADSIZE:
 		panic("emu%d: got fatal result code %d\n", sc->e_unit, code);
 	    case EMU_RES_BADPATH: return ENOENT;
 	    case EMU_RES_EXISTS: return EEXIST;
@@ -245,7 +245,7 @@ emu_close(struct emu_softc *sc, uint32_t handle)
 		result = emu_waitdone(sc);
 
 		if (result==EIO && retries < 10) {
-			kprintf("emu%d: I/O error on close, retrying\n", 
+			kprintf("emu%d: I/O error on close, retrying\n",
 				sc->e_unit);
 			retries++;
 			continue;
@@ -281,7 +281,7 @@ emu_doread(struct emu_softc *sc, uint32_t handle, uint32_t len,
 	if (result) {
 		goto out;
 	}
-	
+
 	result = uiomove(sc->e_iobuf, emu_rreg(sc, REG_IOLEN), uio);
 
 	uio->uio_offset = emu_rreg(sc, REG_OFFSET);
@@ -391,7 +391,7 @@ emu_trunc(struct emu_softc *sc, uint32_t handle, off_t len)
 
 ////////////////////////////////////////////////////////////
 //
-// vnode functions 
+// vnode functions
 //
 
 // at bottom of this section
@@ -545,7 +545,7 @@ emufs_read(struct vnode *v, struct uio *uio)
 		if (result) {
 			return result;
 		}
-		
+
 		if (uio->uio_resid == oldresid) {
 			/* nothing read - EOF */
 			break;
@@ -831,7 +831,7 @@ emufs_namefile(struct vnode *v, struct uio *uio)
 	}
 
 	(void)uio;
-	
+
 	return EUNIMP;
 }
 
@@ -1214,7 +1214,7 @@ emufs_loadvnode(struct emufs_fs *ef, uint32_t handle, int isdir,
 
 ////////////////////////////////////////////////////////////
 //
-// Whole-filesystem functions 
+// Whole-filesystem functions
 //
 
 /*

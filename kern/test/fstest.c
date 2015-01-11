@@ -34,7 +34,7 @@
  * (also in small chunks) and complains if what it reads back is
  * not the same.
  *
- * The length of SLOGAN is intentionally a prime number and 
+ * The length of SLOGAN is intentionally a prime number and
  * specifically *not* a power of two.
  */
 
@@ -100,7 +100,7 @@ rotate(char *str, int amt)
 
 static
 void
-fstest_makename(char *buf, size_t buflen, 
+fstest_makename(char *buf, size_t buflen,
 		const char *fs, const char *namesuffix)
 {
 	snprintf(buf, buflen, "%s:%s%s", fs, FILENAME, namesuffix);
@@ -125,7 +125,7 @@ fstest_remove(const char *fs, const char *namesuffix)
 		kprintf("Could not remove %s: %s\n", name, strerror(err));
 		return -1;
 	}
-	
+
 	return 0;
 }
 
@@ -159,7 +159,7 @@ fstest_write(const char *fs, const char *namesuffix,
 	strcpy(buf, name);
 	err = vfs_open(buf, flags, 0664, &vn);
 	if (err) {
-		kprintf("Could not open %s for write: %s\n", 
+		kprintf("Could not open %s for write: %s\n",
 			name, strerror(err));
 		return -1;
 	}
@@ -197,7 +197,7 @@ fstest_write(const char *fs, const char *namesuffix,
 
 	if (bytes != shouldbytes) {
 		kprintf("%s: %lu bytes written, should have been %lu!\n",
-			name, (unsigned long) bytes, 
+			name, (unsigned long) bytes,
 			(unsigned long) (NCHUNKS*strlen(SLOGAN)));
 		vfs_remove(name);
 		return -1;
@@ -262,7 +262,7 @@ fstest_read(const char *fs, const char *namesuffix)
 
 	if (bytes != NCHUNKS*strlen(SLOGAN)) {
 		kprintf("%s: %lu bytes read, should have been %lu!\n",
-			name, (unsigned long) bytes, 
+			name, (unsigned long) bytes,
 			(unsigned long) (NCHUNKS*strlen(SLOGAN)));
 		return -1;
 	}
@@ -282,7 +282,7 @@ dofstest(const char *filesys)
 		kprintf("*** Test failed\n");
 		return;
 	}
-	
+
 	if (fstest_read(filesys, "")) {
 		kprintf("*** Test failed\n");
 		return;
@@ -341,7 +341,7 @@ doreadstress(const char *filesys)
 		kprintf("*** Test failed\n");
 		return;
 	}
-	
+
 	kprintf("*** fs read stress test done\n");
 }
 
@@ -485,7 +485,7 @@ createstress_thread(void *fs, unsigned long num)
 			V(threadsem);
 			return;
 		}
-		
+
 		if (fstest_read(filesys, numstr)) {
 			kprintf("*** Thread %lu: file %d: failed\n", num, i);
 			V(threadsem);

@@ -38,7 +38,7 @@
  */
 
 
-   /* 
+   /*
     * Do not allow the assembler to use $1 (at), because we need to be
     * able to save it.
     */
@@ -50,7 +50,7 @@
  *
  * This code is copied to address 0x80000000, where the MIPS processor
  * automatically invokes it.
- *   
+ *
  * To avoid colliding with the other exception code, it must not
  * exceed 128 bytes (32 instructions).
  *
@@ -78,7 +78,7 @@ mips_utlb_end:
  * This code is copied to address 0x80000080, where
  * the MIPS processor automatically invokes it.
  */
-      
+
    .text
    .globl mips_general_handler
    .type mips_general_handler,@function
@@ -97,11 +97,11 @@ mips_general_end:
 /*
  * Shared exception code for both handlers.
  */
-   
+
    .text
    .type common_exception,@function
    .ent common_exception
-common_exception:	
+common_exception:
    mfc0 k0, c0_status		/* Get status register */
    andi k0, k0, CST_KUp		/* Check the we-were-in-user-mode bit */
    beq	k0, $0, 1f		/* If clear, from kernel, already have stack */
@@ -128,7 +128,7 @@ common_exception:
     *      sp points into the kernel stack.
     *      All other registers are untouched.
     */
-   
+
    /*
     * Allocate stack space for 37 words to hold the trap frame,
     * plus four more words for a minimal argument block, plus
@@ -136,7 +136,7 @@ common_exception:
     */
    addi sp, sp, -168
 
-   /* 
+   /*
     * Save general registers.
     * We exclude k0/k1, which the kernel is free to clobber (and which
     * we already have clobbered), and $0, whose value is fixed.
@@ -176,7 +176,7 @@ common_exception:
 
    sw k1, 152(sp)	/* real saved sp */
    nop			/* delay slot for store */
-   
+
    mfc0 k1, c0_epc	/* Copr.0 reg 13 == PC for exception */
    sw k1, 160(sp)	/* real saved PC */
 
@@ -262,7 +262,7 @@ common_exception:
 
    /* Something must be here or gdb doesn't find the stack frame. */
    nop
-   
+
    /*
     * Now restore stuff and return from the exception.
     * Interrupts should be off.
@@ -319,11 +319,11 @@ exception_return:
    lw k0, 160(sp)		/* fetch exception return PC into k0 */
 
    lw sp, 152(sp)		/* fetch saved sp (must be last) */
-   
+
    /* done */
    jr k0			/* jump back */
    rfe				/* in delay slot */
-   .end common_exception 
+   .end common_exception
 
 /*
  * Code to enter user mode for the first time.

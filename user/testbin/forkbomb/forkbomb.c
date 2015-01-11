@@ -68,7 +68,7 @@ main()
 			seenpid = pid;
 			if (seenpid != getpid()) {
 				errx(1, "pid mismatch (%d, should be %d) "
-				     "- your vm is broken!", 
+				     "- your vm is broken!",
 				     seenpid, getpid());
 			}
 		}

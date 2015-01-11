@@ -44,7 +44,7 @@ male(void *p, unsigned long which)
 	(void)p;
 	kprintf("male whale #%ld starting\n", which);
 
-	// Implement this function 
+	// Implement this function
 }
 
 static
@@ -54,7 +54,7 @@ female(void *p, unsigned long which)
 	(void)p;
 	kprintf("female whale #%ld starting\n", which);
 
-	// Implement this function 
+	// Implement this function
 }
 
 static
@@ -64,7 +64,7 @@ matchmaker(void *p, unsigned long which)
 	(void)p;
 	kprintf("matchmaker whale #%ld starting\n", which);
 
-	// Implement this function 
+	// Implement this function
 }
 
 
@@ -74,7 +74,7 @@ whalemating(int nargs, char **args)
 {
 
 	int i, j, err=0;
-	
+
 	(void)nargs;
 	(void)args;
 

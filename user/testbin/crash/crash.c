@@ -271,6 +271,6 @@ main(int argc, char **argv)
 
 		printf("I wasn't killed - test fails!\n");
 	}
-  
+
 	return 0;
 }

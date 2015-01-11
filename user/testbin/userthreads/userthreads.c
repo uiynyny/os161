@@ -55,8 +55,8 @@
 #define NTHREADS  3
 #define MAX       1<<25
 
-/* counter for the loop in the threads : 
-   This variable is shared and incremented by each 
+/* counter for the loop in the threads :
+   This variable is shared and incremented by each
    thread during his computation */
 volatile int count = 0;
 
@@ -84,7 +84,7 @@ main(int argc, char *argv[])
 }
 
 /* multiple threads will simply print out the global variable.
-   Even though there is no synchronization, we should get some 
+   Even though there is no synchronization, we should get some
    random results.
 */
 
@@ -107,4 +107,4 @@ ThreadRunner()
 	count++;
     }
 }
-    
+

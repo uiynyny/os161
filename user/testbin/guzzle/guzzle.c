@@ -28,7 +28,7 @@
  */
 
 /*
- * guzzle: Sit in the background in a long loop and display 
+ * guzzle: Sit in the background in a long loop and display
  * characters on the console occasionally.
  *
  * This is intended to help with scheduler testing.

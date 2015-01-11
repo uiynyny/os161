@@ -2,7 +2,7 @@ TOP=../../..
 .include "$(TOP)/mk/os161.config.mk"
 
 SRCS+=vm-funcs.c
-	
+
 # Name of the library.
 LIB=vm-funcs
 

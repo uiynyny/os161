@@ -23,4 +23,4 @@ awk '
 	# output something simple that will work in syscalls.S.
 	printf "SYSCALL(%s, %s)\n", $1, $2;
 }'
-    
+

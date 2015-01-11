@@ -78,14 +78,14 @@ sfs_mapio(struct sfs_fs *sfs, enum uio_rw rw)
 
 	/* Pointer to our bitmap data in memory. */
 	bitdata = bitmap_getdata(sfs->sfs_freemap);
-	
+
 	/* For each sector in the bitmap... */
 	for (j=0; j<mapsize; j++) {
 
 		/* Get a pointer to its data */
 		void *ptr = bitdata + j*SFS_BLOCKSIZE;
 
-		/* and read or write it. The bitmap starts at sector 2. */ 
+		/* and read or write it. The bitmap starts at sector 2. */
 		if (rw == UIO_READ) {
 			result = sfs_rblock(sfs, ptr, SFS_MAP_LOCATION+j);
 		}
@@ -110,7 +110,7 @@ static
 int
 sfs_sync(struct fs *fs)
 {
-	struct sfs_fs *sfs; 
+	struct sfs_fs *sfs;
 	unsigned i, num;
 	int result;
 
@@ -136,9 +136,9 @@ sfs_sync(struct fs *fs)
          *           :      :  fs_data  ----------/          |
          *           :      :                             ...|...
          *           :                                   .  VFS  .
-         *           :                                   . layer . 
+         *           :                                   . layer .
          *           :   other members                    .......
-         *           :                                    
+         *           :
          *           :
 	 *
 	 * This construct is repeated with vnodes and devices and other
@@ -210,7 +210,7 @@ sfs_unmount(struct fs *fs)
 	struct sfs_fs *sfs = fs->fs_data;
 
 	vfs_biglock_acquire();
-	
+
 	/* Do we have any files open? If so, can't unmount. */
 	if (vnodearray_num(sfs->sfs_vnodes) > 0) {
 		vfs_biglock_release();
@@ -224,7 +224,7 @@ sfs_unmount(struct fs *fs)
 	/* Once we start nuking stuff we can't fail. */
 	vnodearray_destroy(sfs->sfs_vnodes);
 	bitmap_destroy(sfs->sfs_freemap);
-	
+
 	/* The vfs layer takes care of the device for us */
 	(void)sfs->sfs_device;
 
@@ -313,7 +313,7 @@ sfs_domount(void *options, struct device *dev, struct fs **ret)
 
 	if (sfs->sfs_super.sp_magic != SFS_MAGIC) {
 		kprintf("sfs: Wrong magic number in superblock "
-			"(0x%x, should be 0x%x)\n", 
+			"(0x%x, should be 0x%x)\n",
 			sfs->sfs_super.sp_magic,
 			SFS_MAGIC);
 		vnodearray_destroy(sfs->sfs_vnodes);
@@ -321,7 +321,7 @@ sfs_domount(void *options, struct device *dev, struct fs **ret)
 		vfs_biglock_release();
 		return EINVAL;
 	}
-	
+
 	if (sfs->sfs_super.sp_nblocks > dev->d_blocks) {
 		kprintf("sfs: warning - fs has %u blocks, device has %u\n",
 			sfs->sfs_super.sp_nblocks, dev->d_blocks);

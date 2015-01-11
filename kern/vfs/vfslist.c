@@ -46,7 +46,7 @@
 
 /*
  * Structure for a single named device.
- * 
+ *
  * kd_name    - Name of device (eg, "lhd0"). Should always be set to
  *              a valid string.
  *
@@ -58,7 +58,7 @@
  *              is hardwired.
  *
  * kd_fs      - Filesystem object mounted on, or associated with, this
- *              device. NULL if there is no filesystem. 
+ *              device. NULL if there is no filesystem.
  *
  * A filesystem can be associated with a device without having been
  * mounted if the device was created that way. In this case,
@@ -239,7 +239,7 @@ vfs_getroot(const char *devname, struct vnode **result)
 		/*
 		 * If none of the above tests matched, we didn't name
 		 * any of the names of this device, so go on to the
-		 * next one. 
+		 * next one.
 		 */
 	}
 
@@ -440,7 +440,7 @@ vfs_doadd(const char *dname, int mountable, struct device *dev, struct fs *fs)
 	if (kd) {
 		kfree(kd);
 	}
-	
+
 	vfs_biglock_release();
 	return ENOMEM;
 }
@@ -635,7 +635,7 @@ vfs_unmountall(void)
 
 		result = FSOP_UNMOUNT(dev->kd_fs);
 		if (result == EBUSY) {
-			kprintf("vfs: Cannot unmount %s: (busy)\n", 
+			kprintf("vfs: Cannot unmount %s: (busy)\n",
 				dev->kd_name);
 			continue;
 		}

@@ -58,7 +58,7 @@ fill_deadbeef(void *vptr, size_t len)
 //    We allocate one page at a time and fill it with objects of size k,
 //    for various k. Each page has its own freelist, maintained by a
 //    linked list in the first word of each object. Each page also has a
-//    freecount, so we know when the page is completely free and can 
+//    freecount, so we know when the page is completely free and can
 //    release it.
 //
 //    No assumptions are made about the sizes k; they need not be
@@ -118,7 +118,7 @@ struct pageref {
 ////////////////////////////////////////
 
 /*
- * This is cheesy. 
+ * This is cheesy.
  *
  * The problem is not that it's wasteful - we can only allocate whole
  * pages of pageref structures at a time anyway. The problem is that
@@ -274,7 +274,7 @@ checksubpages(void)
 	KASSERT(sc==ac);
 }
 #else
-#define checksubpages() 
+#define checksubpages()
 #endif
 
 ////////////////////////////////////////
@@ -316,7 +316,7 @@ dumpsubpage(struct pageref *pr)
 		}
 	}
 
-	kprintf("at 0x%08lx: size %-4lu  %u/%u free\n", 
+	kprintf("at 0x%08lx: size %-4lu  %u/%u free\n",
 		(unsigned long)prpage, (unsigned long) sizes[blktype],
 		(unsigned) pr->nfree, n);
 	kprintf("   ");
@@ -385,7 +385,7 @@ int blocktype(size_t sz)
 		}
 	}
 
-	panic("Subpage allocator cannot handle allocation of size %lu\n", 
+	panic("Subpage allocator cannot handle allocation of size %lu\n",
 	      (unsigned long)sz);
 
 	// keep compiler happy
@@ -463,7 +463,7 @@ subpage_kmalloc(size_t sz)
 	prpage = alloc_kpages(1);
 	if (prpage==0) {
 		/* Out of memory. */
-		kprintf("kmalloc: Subpage allocator couldn't get a page\n"); 
+		kprintf("kmalloc: Subpage allocator couldn't get a page\n");
 		return NULL;
 	}
 	spinlock_acquire(&kmalloc_spinlock);
@@ -473,7 +473,7 @@ subpage_kmalloc(size_t sz)
 		/* Couldn't allocate accounting space for the new page. */
 		spinlock_release(&kmalloc_spinlock);
 		free_kpages(prpage);
-		kprintf("kmalloc: Subpage allocator couldn't get pageref\n"); 
+		kprintf("kmalloc: Subpage allocator couldn't get pageref\n");
 		return NULL;
 	}
 

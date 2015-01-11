@@ -23,7 +23,7 @@ struct spinlock stats_lock = SPINLOCK_INITIALIZER;
 
 /* Strings used in printing out the statistics */
 static const char *stats_names[] = {
- /*  0 */ "TLB Faults", 
+ /*  0 */ "TLB Faults",
  /*  1 */ "TLB Faults with Free",
  /*  2 */ "TLB Faults with Replace",
  /*  3 */ "TLB Invalidations",
@@ -118,14 +118,14 @@ vmstats_print(void)
   kprintf("VMSTAT TLB Faults with Free + TLB Faults with Replace = %d\n", free_plus_replace);
   if (tlb_faults != free_plus_replace) {
     kprintf("WARNING: TLB Faults (%d) != TLB Faults with Free + TLB Faults with Replace (%d)\n",
-      tlb_faults, free_plus_replace); 
+      tlb_faults, free_plus_replace);
   }
 
   kprintf("VMSTAT TLB Reloads + Page Faults (Zeroed) + Page Faults (Disk) = %d\n",
     disk_plus_zeroed_plus_reload);
   if (tlb_faults != disk_plus_zeroed_plus_reload) {
     kprintf("WARNING: TLB Faults (%d) != TLB Reloads + Page Faults (Zeroed) + Page Faults (Disk) (%d)\n",
-      tlb_faults, disk_plus_zeroed_plus_reload); 
+      tlb_faults, disk_plus_zeroed_plus_reload);
   }
 
   kprintf("VMSTAT ELF File reads + Swapfile reads = %d\n", elf_plus_swap_reads);

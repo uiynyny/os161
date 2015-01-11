@@ -41,12 +41,12 @@
  * user-space address USERDEST.
  *
  * copyinstr copies a null-terminated string of at most LEN bytes from
- * a user-space address USERSRC to a kernel-space address DEST, and 
+ * a user-space address USERSRC to a kernel-space address DEST, and
  * returns the actual length of string found in GOT. DEST is always
  * null-terminated on success. LEN and GOT include the null terminator.
  *
  * copyoutstr copies a null-terminated string of at most LEN bytes from
- * a kernel-space address SRC to a user-space address USERDEST, and 
+ * a kernel-space address SRC to a user-space address USERDEST, and
  * returns the actual length of string found in GOT. DEST is always
  * null-terminated on success. LEN and GOT include the null terminator.
  *
@@ -54,7 +54,7 @@
  * addressing error was encountered, or (for the string versions)
  * ENAMETOOLONG if the space available was insufficient.
  *
- * NOTE that the order of the arguments is the same as bcopy() or 
+ * NOTE that the order of the arguments is the same as bcopy() or
  * cp/mv, that is, source on the left, NOT the same as strcpy().
  * The const qualifiers and types will help protect against mistakes
  * in this regard but are obviously not foolproof.

@@ -96,7 +96,7 @@ config_ltimer(struct ltimer_softc *lt, int ltimerno)
 		bus_write_register(lt->lt_bus, lt->lt_buspos, LT_REG_COUNT,
 				   LT_GRANULARITY);
 	}
-	
+
 	return 0;
 }
 
@@ -130,7 +130,7 @@ ltimer_irq(void *vlt)
 /*
  * The timer device will beep if you write to the beep register. It
  * doesn't matter what value you write. This function is called if
- * the beep device is attached to this timer. 
+ * the beep device is attached to this timer.
  */
 void
 ltimer_beep(void *vlt)
@@ -153,7 +153,7 @@ ltimer_gettime(void *vlt, time_t *secs, uint32_t *nsecs)
 	int spl;
 
 	/*
-	 * Read the seconds twice, on either side of the nanoseconds. 
+	 * Read the seconds twice, on either side of the nanoseconds.
 	 * If nsecs is small, use the *later* value of seconds, in case
 	 * the nanoseconds turned over between the time we got the earlier
 	 * value and the time we got nsecs.

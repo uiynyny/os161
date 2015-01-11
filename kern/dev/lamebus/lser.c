@@ -69,7 +69,7 @@ lser_irq(void *vsc)
 		ch = bus_read_register(sc->ls_busdata, sc->ls_buspos,
 				       LSER_REG_CHAR);
 		got_a_read = true;
-		bus_write_register(sc->ls_busdata, sc->ls_buspos, 
+		bus_write_register(sc->ls_busdata, sc->ls_buspos,
 				   LSER_REG_RIRQ, x);
 	}
 
@@ -150,7 +150,7 @@ lser_writepolled(void *vsc, int ch)
 
 	/*
 	 * If there wasn't already an IRQ pending, clear the ready condition.
-	 * But if there was, leave the ready condition, so we get to the 
+	 * But if there was, leave the ready condition, so we get to the
 	 * interrupt handler in due course.
 	 */
 	if (!irqpending) {

@@ -15,7 +15,7 @@ get used by some of the automated testing scripts.
 
 syscall   - example program: how a syscall works used in the course notes
 segments  - example program: how different segments used in the course notes
-argtest   - is a useful program that I ask people to use when 
+argtest   - is a useful program that I ask people to use when
             when trying to implement argc/argv.
 
 vm-funcs  - code that is used by some of the vm-* tests

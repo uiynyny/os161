@@ -8,7 +8,7 @@
 # This file takes care of including $(TOP)/defs.mk and sets defaults
 # for things that can be defined there.
 #
-# It and defs.mk collaboratively set various make variables that 
+# It and defs.mk collaboratively set various make variables that
 # control the build environment.
 #
 ############################################################
@@ -59,7 +59,7 @@
 #				Default: -O2
 #
 # WARNINGS			Compiler options for warnings.
-#				Default: -Wall -Wextra -Wwrite-strings 
+#				Default: -Wall -Wextra -Wwrite-strings
 #					 -Wmissing-prototypes
 #
 # WERROR			Compiler option to make warnings fatal.
@@ -116,7 +116,7 @@
 #
 # LDCC				(Cross-)compiler when invoked for linking.
 #				Default is $(CC).
-# 
+#
 # AS				(Cross-)assembler.
 #				Default is $(GNUTARGET)-as.
 #
@@ -152,7 +152,7 @@
 #
 # HOST_LDCC			Host compiler when invoked for linking.
 #				Default is $(HOST_CC).
-# 
+#
 # HOST_AS			Host assembler.
 #				Default is as.
 #

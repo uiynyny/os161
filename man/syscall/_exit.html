@@ -20,7 +20,7 @@ _exit(int <em>exitcode</em>);
 <h3>Description</h3>
 
 Cause the current process to exit. The exit code <em>exitcode</em> is
-reported back to other process(es) via the 
+reported back to other process(es) via the
 <A HREF=waitpid.html>waitpid()</A> call. The process id of the exiting
 process should not be reused until all processes interested in
 collecting the exit code with waitpid have done so. (What "interested"

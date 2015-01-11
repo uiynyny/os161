@@ -11,7 +11,7 @@
 #include "../lib/testutils.h"
 
 #define NUM_TIMES   (1)
-#define NUM_INTS    (4*1024) 
+#define NUM_INTS    (4*1024)
 
 int
 main()
@@ -46,7 +46,7 @@ main()
    for (i=0; i<NUM_TIMES; i++) {
 		 rc = read(fd, read_array, sizeof(read_array));
      TEST_EQUAL(rc, sizeof(read_array), "Failed to read all of the array");
-     for (i=0; i<NUM_INTS; i++) { 
+     for (i=0; i<NUM_INTS; i++) {
        TEST_EQUAL(read_array[i], write_array[i], "Value read not equal to value written");
      }
    }

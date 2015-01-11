@@ -1,7 +1,7 @@
 #ifndef _QUEUE_H_
 #define _QUEUE_H_
 
-/* 
+/*
  * Queue of void pointers, implemented as a ring buffer.
  *
  * Functions:
@@ -34,8 +34,8 @@ void          q_destroy(struct queue *);
 void         *q_peek(struct queue *q);
 int           q_len(struct queue *theq);
 
-/* 
- * These are really intended only for debugging. Using them encodes 
+/*
+ * These are really intended only for debugging. Using them encodes
  * knowledge of how the queue works, which is usually undesirable.
  *
  *      q_getstart - return the index of the front of the queue
@@ -46,7 +46,7 @@ int           q_len(struct queue *theq);
  * To iterate over the queue, do something like
  *      struct queue *q;
  *      int i;
- *      
+ *
  *      for (i=q_getstart(q); i!=q_getend(q); i=(i+1)%q_getsize(q)) {
  *              void *ptr = q_getguy(q, i);
  *                :

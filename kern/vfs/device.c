@@ -210,7 +210,7 @@ dev_tryseek(struct vnode *v, off_t pos)
 			return EINVAL;
 		}
 		if (pos < 0) {
-			/* 
+			/*
 			 * Nonsensical.
 			 * (note: off_t must be signed for SEEK_CUR or
 			 * SEEK_END seeks to work, so this case must
@@ -253,7 +253,7 @@ dev_mmap(struct vnode *v  /* add stuff as needed */)
 }
 
 /*
- * For ftruncate(). 
+ * For ftruncate().
  */
 static
 int
@@ -375,7 +375,7 @@ null_rename(struct vnode *v, const char *n1, struct vnode *v2, const char *n2)
  */
 static
 int
-dev_lookup(struct vnode *dir, 
+dev_lookup(struct vnode *dir,
 	   char *pathname, struct vnode **result)
 {
 	/*
@@ -393,7 +393,7 @@ dev_lookup(struct vnode *dir,
 
 static
 int
-dev_lookparent(struct vnode *dir, 
+dev_lookparent(struct vnode *dir,
 	       char *pathname, struct vnode **result,
 	       char *namebuf, size_t buflen)
 {

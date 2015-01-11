@@ -45,7 +45,7 @@
  * facility to perform recovery.
  *
  * However, it assumes things about the memory subsystem that may not
- * be true on all platforms. 
+ * be true on all platforms.
  *
  * (1) It assumes that user memory is mapped into the current address
  * space while running in the kernel, and can be accessed by just
@@ -145,7 +145,7 @@ copycheck(const_userptr_t userptr, size_t len, size_t *stoplen)
 /*
  * copyin
  *
- * Copy a block of memory of length LEN from user-level address USERSRC 
+ * Copy a block of memory of length LEN from user-level address USERSRC
  * to kernel address DEST. We can use memcpy because it's protected by
  * the tm_badfaultfunc/copyfail logic.
  */
@@ -227,7 +227,7 @@ copyout(const void *src, userptr_t userdest, size_t len)
  * STOPLEN is like MAXLEN but is assumed to have come from copycheck.
  * If we hit MAXLEN it's because the string is too long to fit; if we
  * hit STOPLEN it's because the string has run into the end of
- * userspace. Thus in the latter case we return EFAULT, not 
+ * userspace. Thus in the latter case we return EFAULT, not
  * ENAMETOOLONG.
  */
 static

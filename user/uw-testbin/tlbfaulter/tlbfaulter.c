@@ -1,4 +1,4 @@
-/* 
+/*
  * tlbfaulter.c
  *
  * 	This program creates an array larger than the TLB footprint,
@@ -17,8 +17,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* 
- * set these to match the page size of the 
+/*
+ * set these to match the page size of the
  * machine and the number of entries in the TLB
  */
 #define PageSize  4096
@@ -39,16 +39,16 @@ main()
 	for (i=0; i<ArraySize; i++) {
 	  tlbtest[i]= 'a';
 	}
-	
+
 	printf("tlbfaulter: array initialization completed\n");
-	
+
 	/* touch one array entry on each page, sequentially, 5 times */
 	for(j=0; j<5; j++) {
 	  for (i=0; i<ArraySize; i+=PageSize) {
 	    tlbtest[i] += 1;
 	  }
 	}
-	
+
 	printf("tlbfaulter: array updates completed\n");
 
 	/* check the array values we updated */
@@ -60,7 +60,7 @@ main()
 	}
 
 	printf("SUCCESS\n");
-	
+
 	return 0;
 }
 

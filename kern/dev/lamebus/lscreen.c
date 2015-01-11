@@ -53,7 +53,7 @@
 /* Offset within slot of screen buffer */
 #define LSCR_SCREEN      32768
 
-/* Convert a 32-bit X/Y pair to X and Y coordinates. */ 
+/* Convert a 32-bit X/Y pair to X and Y coordinates. */
 static
 inline
 void

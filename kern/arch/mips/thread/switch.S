@@ -32,10 +32,10 @@
  */
 
 #include <kern/mips/regdefs.h>
-  
+
    .text
    .set noreorder
-  
+
    .globl switchframe_switch
    .type switchframe_switch,@function
    .ent switchframe_switch

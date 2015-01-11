@@ -68,7 +68,7 @@
  */
 
 /* fcntl() operations */
-#define F_DUPFD         0       /* like dup() but not quite */  
+#define F_DUPFD         0       /* like dup() but not quite */
 #define F_GETFD         1       /* get per-handle flags */
 #define F_SETFD         2       /* set per-handle flags */
 #define F_GETFL         3       /* get per-file flags (O_* open flags) */

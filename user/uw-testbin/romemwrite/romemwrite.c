@@ -11,7 +11,7 @@
  *  The only advantage of this program is that it does not
  *  require argument passing, so it can be used even if argument
  *  passing is not implemented.
- */ 
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

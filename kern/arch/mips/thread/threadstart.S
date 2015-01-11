@@ -32,7 +32,7 @@
  */
 
 #include <kern/mips/regdefs.h>
-  
+
    .text
    .set noreorder
 
@@ -57,7 +57,7 @@ mips_threadstart:
     */
 
    addiu sp, sp, -16    /* make our stack frame */
-   
+
    move ra, $0          /* clear return addr so we're top of the call stack */
 
    move a0, s0          /* load arguments and call */

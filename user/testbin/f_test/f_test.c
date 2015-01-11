@@ -31,7 +31,7 @@
  * Razvan Surdulescu
  * abhi shelat
  * April 28 1997
- * 
+ *
  * Test suite for Nachos HW4--The Filesystem
  *
  * Modified by dholland 1/31/2001 for OS/161
@@ -89,7 +89,7 @@ forkoff(void (*func)(void))
 	    case -1:
 		warn("fork");
 		return -1;
-	    case 0: 
+	    case 0:
 		func();
 		_exit(0);
 	    default: break;
@@ -115,7 +115,7 @@ dowait(int pid)
 }
 
 /* ===================================================
-	
+
  */
 
 static
@@ -123,15 +123,15 @@ void
 big_file(int size)
 {
 	int i, j, fileid;
-	
+
 	printf("[BIGFILE] test starting :\n");
 	printf("\tCreating a file of size: %d\n", size);
-	
+
 	fileid = open(BIGFILE_NAME, O_WRONLY|O_CREAT|O_TRUNC, 0664);
 	if (fileid < 0) {
 		err(1, "[BIGFILE]: %s: open for write", BIGFILE_NAME);
-	}	
-	
+	}
+
 	for(i = 0; i < BUFFER_SIZE; i++) {
 		fbuffer[i] = LETTER(i);
 	}
@@ -152,7 +152,7 @@ big_file(int size)
 	if (fileid < 0) {
 		err(1, "[BIGFILE]: %s: open for read", BIGFILE_NAME);
 	}
-	
+
 	for (i = 0; i < size; i += BUFFER_SIZE) {
 		j = read(fileid, fbuffer, BUFFER_SIZE);
 		if (j<0) {
@@ -231,12 +231,12 @@ concur(void)
 	if (remove(FNAME)) {
 		err(1, "[CONCUR]: %s: remove", FNAME);
 	}
-	 
+
 	printf("[CONCUR] Done!\n");
 }
 
 /* ===================================================
-	
+
  */
 
 static
@@ -252,7 +252,7 @@ dir_test(int depth)
 
 	for (i = 0; i < depth; i++) {
 		strcat(dirname, tmp);
-		
+
 		printf("\tCreating dir : %s\n", dirname);
 
 		if (mkdir(dirname, 0775) < 0) {
@@ -276,7 +276,7 @@ dir_test(int depth)
 		strcat(dirname, fmp);
 
 		printf("\tDeleting file: %s\n", dirname);
-		  
+
 		if (remove(dirname)) {
 			 err(1, "[DIRTEST]: %s: remove", dirname);
 		}
@@ -302,7 +302,7 @@ dir_test(int depth)
 #define   RUNBIGFILE  0x1
 #define   RUNDIRTEST  0x2
 #define   RUNCONCUR   0x4
-#define   RUNTHEMALL  (RUNBIGFILE | RUNDIRTEST | RUNCONCUR) 
+#define   RUNTHEMALL  (RUNBIGFILE | RUNDIRTEST | RUNCONCUR)
 
 int
 main(int argc, char * argv[])
@@ -319,25 +319,25 @@ main(int argc, char * argv[])
 		else if (*argv[1]=='3') {
 			tv = RUNCONCUR;
 		}
-	} 
+	}
 	else {
 		tv = RUNTHEMALL;
 	}
-	 
+
 	if (tv & RUNBIGFILE) {
 		printf("[BIGFILE] : Run #1\n");
-		big_file(BIGFILE_SIZE); 
+		big_file(BIGFILE_SIZE);
 		printf("[BIGFILE] : Run #2\n");
 		big_file(BIGFILE_SIZE);
 	}
-	 
+
 	if (tv & RUNDIRTEST) {
 		printf("[DIRTEST] : Run #1\n");
 		dir_test(DIR_DEPTH);
 		printf("[DIRTEST] : Run #2\n");
 		dir_test(DIR_DEPTH);
 	}
-	 
+
 	if (tv & RUNCONCUR) {
 		printf("[CONCUR]\n");
 		concur();

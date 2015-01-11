@@ -29,7 +29,7 @@
 
 void test_equal(int ret_val, int expected_val, const char *str,
      const char *file, const char* func, int line);
-void test_equal_one_of(int val, int expected_val1, int expected_val2, const char *str, 
+void test_equal_one_of(int val, int expected_val1, int expected_val2, const char *str,
      const char *file, const char *func, int line);
 void test_positive(int ret_val, const char *str,
      const char *file, const char* func, int line);

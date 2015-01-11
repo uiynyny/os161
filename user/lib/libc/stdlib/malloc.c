@@ -74,7 +74,7 @@ struct mheader {
 #define MBLOCKSHIFT 3
 #define MMAGIC 2
 	/*
-	 * 32-bit platform. size_t is 32 bits (4 bytes). 
+	 * 32-bit platform. size_t is 32 bits (4 bytes).
 	 * Block size is 8 bytes.
 	 */
 	unsigned mh_prevblock:29;
@@ -111,12 +111,12 @@ struct mheader {
  *
  * M_NEXT/PREVOFF:	return offset to next/previous header
  * M_NEXT/PREV:		return next/previous header
- * 
+ *
  * M_DATA:		return data pointer of a header
  * M_SIZE:		return data size of a header
  *
  * M_OK:		true if the magic values are correct
- * 
+ *
  * M_MKFIELD:		prepare a value for mh_next/prevblock.
  * 			(value should include the header size)
  */
@@ -179,7 +179,7 @@ __malloc_init(void)
 
 	/*
 	 * Make sure the heap base is aligned the way we want it.
-	 * (On OS/161, it will begin on a page boundary. But on 
+	 * (On OS/161, it will begin on a page boundary. But on
 	 * an arbitrary Unix, it may not be, as traditionally it
 	 * begins at _end.)
 	 */
@@ -231,7 +231,7 @@ __malloc_dump(void)
 			errx(1, "malloc: Heap corrupt; header at 0x%lx"
 			     " has bad previous-block size %lu "
 			     "(should be %lu)",
-			     (unsigned long) i, 
+			     (unsigned long) i,
 			     (unsigned long) mh->mh_prevblock << MBLOCKSHIFT,
 			     (unsigned long) rightprevblock << MBLOCKSHIFT);
 		}
@@ -255,7 +255,7 @@ __malloc_dump(void)
 ////////////////////////////////////////////////////////////
 
 /*
- * Get more memory (at the top of the heap) using sbrk, and 
+ * Get more memory (at the top of the heap) using sbrk, and
  * return a pointer to it.
  */
 static
@@ -308,7 +308,7 @@ __malloc_split(struct mheader *mh, size_t size)
 
 	oldsize = M_SIZE(mh);
 	mh->mh_nextblock = M_MKFIELD(size + MBLOCKSIZE);
-	
+
 	mhnew = M_NEXT(mh);
 	if (mhnew==mhnext) {
 		errx(1, "malloc: Internal error (split screwed up?)");
@@ -341,12 +341,12 @@ malloc(size_t size)
 	}
 	if (__heapbase==0 || __heaptop==0 || __heapbase > __heaptop) {
 		warnx("malloc: Internal error - local data corrupt");
-		errx(1, "malloc: heapbase 0x%lx; heaptop 0x%lx", 
+		errx(1, "malloc: heapbase 0x%lx; heaptop 0x%lx",
 		     (unsigned long) __heapbase, (unsigned long) __heaptop);
 	}
 
 #ifdef MALLOCDEBUG
-	warnx("malloc: about to allocate %lu (0x%lx) bytes", 
+	warnx("malloc: about to allocate %lu (0x%lx) bytes",
 	      (unsigned long) size, (unsigned long) size);
 	__malloc_dump();
 #endif
@@ -370,7 +370,7 @@ malloc(size_t size)
 			errx(1, "malloc: Heap corrupt; header at 0x%lx"
 			     " has bad previous-block size %lu "
 			     "(should be %lu)",
-			     (unsigned long) i, 
+			     (unsigned long) i,
 			     (unsigned long) mh->mh_prevblock << MBLOCKSHIFT,
 			     (unsigned long) rightprevblock << MBLOCKSHIFT);
 		}
@@ -491,7 +491,7 @@ free(void *x)
 	/* Consistency check. */
 	if (__heapbase==0 || __heaptop==0 || __heapbase > __heaptop) {
 		warnx("free: Internal error - local data corrupt");
-		errx(1, "free: heapbase 0x%lx; heaptop 0x%lx", 
+		errx(1, "free: heapbase 0x%lx; heaptop 0x%lx",
 		     (unsigned long) __heapbase, (unsigned long) __heaptop);
 	}
 

@@ -22,7 +22,7 @@ rename(const char *<em>oldname</em>, const char *<em>newname</em>);
 The file (or other object) referenced by <em>oldname</em> is given the
 name <em>newname</em>, and the name <em>oldname</em> is removed. If
 <em>newname</em> already exists, it is removed as well. (The semantics
-for removing files and directories described under 
+for removing files and directories described under
 <A HREF=remove.html>remove</A> and <A HREF=rmdir.html>rmdir</A>
 must be honored.)
 <p>
@@ -71,15 +71,15 @@ mentioned here.
 				not exist.</td></tr>
 <tr><td>ENOTDIR</td>	<td>A non-final component of one of the names
 				was not a directory.</td></tr>
-<tr><td>ENOENT</td>		<td>A non-final component of <em>newname</em>   
+<tr><td>ENOENT</td>		<td>A non-final component of <em>newname</em>
 				did not exist.</td></tr>
 <tr><td>ENOENT</td>		<td><em>oldname</em> does not exist.</td></tr>
-<tr><td>ENOTDIR</td>	<td><em>oldname</em> is a directory, and 
+<tr><td>ENOTDIR</td>	<td><em>oldname</em> is a directory, and
 				<em>newname</em> is not.</td></tr>
-<tr><td>EISDIR</td>		<td><em>oldname</em> is not a directory, and 
+<tr><td>EISDIR</td>		<td><em>oldname</em> is not a directory, and
 				<em>newname</em> is.</td></tr>
 <tr><td>ENOTEMPTY</td>	<td><em>newname</em> is a directory, and it is
-				not empty.</td>   
+				not empty.</td>
 <tr><td>EXDEV</td>		<td>The two names are on different filesystems.</td></tr>
 <tr><td>EINVAL</td>		<td><em>newname</em> is a subdirectory of
 				<em>oldname</em>.</td></tr>
@@ -91,7 +91,7 @@ mentioned here.
 </table></blockquote>
 
 As with rmdir, attempts to rename ".." may generate either EINVAL or
-ENOTEMPTY. 
+ENOTEMPTY.
 
 </body>
 </html>

@@ -41,7 +41,7 @@ q_grow(struct queue *q, int targetsize)
 	q->size = nsize;
 	q->data = ndata;
 	q->nextread = q->nextwrite = 0;
-	
+
 	for (i=onr; i!=onw; i = (i+1)%osize) {
 		result = q_addtail(q, olddata[i]);
 		KASSERT(result==0);
@@ -93,7 +93,7 @@ q_addtail(struct queue *q, void *ptr)
 	int nextnext, result;
 
 	KASSERT(q->size > 0);
- 
+
 	nextnext = (q->nextwrite+1) % q->size;
 	if (nextnext==q->nextread) {
 		result = q_grow(q, q->size+1);

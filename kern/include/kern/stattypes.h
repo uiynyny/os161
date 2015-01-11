@@ -34,7 +34,7 @@
  * Further supporting material for stat(), fstat(), and lstat().
  *
  * File types for st_mode. (The permissions are the low 12 bits.)
- * 
+ *
  * These are also used, shifted right by those 12 bits, in struct
  * dirent in libc, which is why they get their own file.
  *

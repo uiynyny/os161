@@ -136,7 +136,7 @@ panic(const char *fmt, ...)
 
 	/*
 	 * When we reach panic, the system is usually fairly screwed up.
-	 * It's not entirely uncommon for anything else we try to do 
+	 * It's not entirely uncommon for anything else we try to do
 	 * here to trigger more panics.
 	 *
 	 * This variable makes sure that if we try to do something here,

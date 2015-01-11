@@ -45,7 +45,7 @@
  *
  *	u = 2^n u1  *  u0	(n = number of bits in `unsigned int', usu. 32)
  *
- * and 
+ * and
  *
  *	v = 2^n v1  *  v0
  *

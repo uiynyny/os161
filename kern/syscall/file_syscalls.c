@@ -12,7 +12,7 @@
 /* handler for write() system call                  */
 /*
  * n.b.
- * This implementation handles only writes to standard output 
+ * This implementation handles only writes to standard output
  * and standard error, both of which go to the console.
  * Also, it does not provide any synchronization, so writes
  * are not atomic.
@@ -28,7 +28,7 @@ sys_write(int fdesc,userptr_t ubuf,unsigned int nbytes,int *retval)
   int res;
 
   DEBUG(DB_SYSCALL,"Syscall: write(%d,%x,%d)\n",fdesc,(unsigned int)ubuf,nbytes);
-  
+
   /* only stdout and stderr writes are currently implemented */
   if (!((fdesc==STDOUT_FILENO)||(fdesc==STDERR_FILENO))) {
     return EUNIMP;

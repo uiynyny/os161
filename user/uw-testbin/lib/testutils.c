@@ -31,7 +31,7 @@ print_location(const char *file, const char *func, int line, const char *in_test
 
 /* Check if val is equal to expected_val, if not it is an error */
 void
-test_equal(int val, int expected_val, const char *str, 
+test_equal(int val, int expected_val, const char *str,
             const char *file, const char *func, int line)
 {
   int failed = 0;
@@ -46,7 +46,7 @@ test_equal(int val, int expected_val, const char *str,
   }
 
   if (failed || verbose) {
-    printf("%s ON TEST = %d : Got %d : expected %d\n", 
+    printf("%s ON TEST = %d : Got %d : expected %d\n",
       out, test_num, val, expected_val);
 
     if (failed) {
@@ -59,7 +59,7 @@ test_equal(int val, int expected_val, const char *str,
 
 /* Check if val is equal to expected_val, if not it is an error */
 void
-test_equal_one_of(int val, int expected_val1, int expected_val2, const char *str, 
+test_equal_one_of(int val, int expected_val1, int expected_val2, const char *str,
             const char *file, const char *func, int line)
 {
   int failed = 0;
@@ -74,7 +74,7 @@ test_equal_one_of(int val, int expected_val1, int expected_val2, const char *str
   }
 
   if (failed || verbose) {
-    printf("%s ON TEST = %d : Got %d : expected one of %d or %d\n", 
+    printf("%s ON TEST = %d : Got %d : expected one of %d or %d\n",
       out, test_num, val, expected_val1, expected_val2);
 
     if (failed) {
@@ -102,7 +102,7 @@ test_positive(int val, const char *str,
   }
 
   if (failed || verbose) {
-    printf("%s ON TEST = %d : Got %d : expected Positive Value\n", 
+    printf("%s ON TEST = %d : Got %d : expected Positive Value\n",
       out, test_num, val);
 
     if (failed) {
@@ -129,7 +129,7 @@ test_negative(int val, const char *str,
   }
 
   if (failed || verbose) {
-    printf("%s ON TEST = %d : Got %d : expected Negative Value\n", 
+    printf("%s ON TEST = %d : Got %d : expected Negative Value\n",
       out, test_num, val);
 
     if (failed) {
@@ -156,7 +156,7 @@ test_not_equal(int val1, int val2, const char *str,
   }
 
   if (failed || verbose) {
-    printf("%s ON TEST = %d : Got %d : Expected anything but %d\n", 
+    printf("%s ON TEST = %d : Got %d : Expected anything but %d\n",
       out, test_num, val1, val2);
 
     if (failed) {
@@ -191,7 +191,7 @@ test_verbose_off(void)
 void
 test_print_stats(const char *file, const char* func, int line)
 {
-  printf("TEST STATS for %s : from function = %s, line = %d\n", 
+  printf("TEST STATS for %s : from function = %s, line = %d\n",
     file, func, line);
   printf("    Number of failures = %d    Number of successes = %d   Number of Tests = %d\n",
     num_failures, test_num - num_failures, test_num);

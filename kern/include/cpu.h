@@ -93,7 +93,7 @@ struct cpu {
 
 /*
  * Initialization functions.
- * 
+ *
  * cpu_create creates a cpu; it is suitable for calling from driver-
  * or bus-specific code that looks for secondary CPUs.
  *

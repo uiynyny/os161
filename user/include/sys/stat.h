@@ -72,7 +72,7 @@ int fstat(int filehandle, struct stat *buf);
 int stat(const char *path, struct stat *buf);
 int lstat(const char *path, struct stat *buf);
 
-/* 
+/*
  * The second argument to mkdir is the mode for the new directory.
  * Unless you're implementing security and permissions, you can
  * (and should) ignore it. See notes in unistd.h.

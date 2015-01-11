@@ -55,7 +55,7 @@
 /*
  * These two pieces of data are maintained by the makefiles and build system.
  * buildconfig is the name of the config file the kernel was configured with.
- * buildversion starts at 1 and is incremented every time you link a kernel. 
+ * buildversion starts at 1 and is incremented every time you link a kernel.
  *
  * The purpose is not to show off how many kernels you've linked, but
  * to make it easy to make sure that the kernel you just booted is the
@@ -146,7 +146,7 @@ shutdown(void)
 {
 
 	kprintf("Shutting down.\n");
-	
+
 	vfs_clearbootfs();
 	vfs_clearcurdir();
 	vfs_unmountall();
@@ -169,26 +169,26 @@ int
 sys_reboot(int code)
 {
 	switch (code) {
-	    case RB_REBOOT:
-	    case RB_HALT:
-	    case RB_POWEROFF:
+		case RB_REBOOT:
+		case RB_HALT:
+		case RB_POWEROFF:
 		break;
-	    default:
+		default:
 		return EINVAL;
 	}
 
 	shutdown();
 
 	switch (code) {
-	    case RB_HALT:
+		case RB_HALT:
 		kprintf("The system is halted.\n");
 		mainbus_halt();
 		break;
-	    case RB_REBOOT:
+		case RB_REBOOT:
 		kprintf("Rebooting...\n");
 		mainbus_reboot();
 		break;
-	    case RB_POWEROFF:
+		case RB_POWEROFF:
 		kprintf("The system is halted.\n");
 		mainbus_poweroff();
 		break;

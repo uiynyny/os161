@@ -66,7 +66,7 @@ subproc_write(void)
 	for (i=0; i < SectorSize + 1; i++) {
 		buffer[i] = WRITECHAR;
 	}
-  
+
 	printf("File Writer starting ...\n");
 
 	fd = open(FNAME, O_WRONLY);

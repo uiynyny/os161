@@ -19,7 +19,7 @@
 #
 # HOSTBINDIR			Directory under $(OSTREE) to install into,
 #                               e.g. /hostbin. Should have a leading slash.
-#				If not set, the program goes in 
+#				If not set, the program goes in
 #				$(TOOLDIR)/hostbin instead.
 #
 # Note that individual program makefiles should only *append* to

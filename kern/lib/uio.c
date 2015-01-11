@@ -69,7 +69,7 @@ uiomove(void *ptr, size_t n, struct uio *uio)
 			uio->uio_iov++;
 			uio->uio_iovcnt--;
 			if (uio->uio_iovcnt == 0) {
-				/* 
+				/*
 				 * This should only happen if you set
 				 * uio_resid incorrectly (to more than
 				 * the total length of buffers the uio

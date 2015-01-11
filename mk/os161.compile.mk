@@ -33,7 +33,7 @@ distcleancompile:
 #
 # The awk scripts and the first sed invocation transform the results to
 # have one file per line.
-# 
+#
 # The second sed command replaces the value of $(INSTALLTOP) -- which
 # is some pathname -- with the string $(INSTALLTOP). This makes the
 # depend file independent of the value of $(INSTALLTOP).
@@ -74,7 +74,7 @@ $(_S_:T:R).o: $(MYBUILDDIR)/$(_S_:T:R).o
 .endfor
 
 # Make non-file rules PHONY.
-.PHONY: clean cleancompile distclean distcleancompile 
+.PHONY: clean cleancompile distclean distcleancompile
 .PHONY: depend dependcompile tags tagscompile
 
 # End.

@@ -45,7 +45,7 @@
  * All we do is load the syscall number into v0, the register the
  * kernel expects to find it in, and jump to the shared syscall code.
  * (Note that the addiu instruction is in the jump's delay slot.)
- */    
+ */
 #define SYSCALL(sym, num) \
    .set noreorder		; \
    .globl sym			; \
@@ -59,7 +59,7 @@ sym:				; \
 
 /*
  * Now, the shared system call code.
- * The MIPS syscall ABI is as follows:	
+ * The MIPS syscall ABI is as follows:
  *
  *    On entry, call number in v0. The rest is like a normal function
  *    call: four args in a0-a3, the other args on the stack.

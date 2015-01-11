@@ -76,7 +76,7 @@ static long random_unlocked(void);
  * state information, which will allow a degree seven polynomial.  (Note:
  * the zeroeth word of state information also has some other information
  * stored in it -- see setstate() for details).
- * 
+ *
  * The random number generation technique is a linear feedback shift register
  * approach, employing trinomials (since there are fewer terms to sum up that
  * way).  In this approach, the least significant bit of all the numbers in
@@ -263,12 +263,12 @@ srandom(unsigned long x)
  * the break values for the different R.N.G.'s, we choose the best (largest)
  * one we can and set things up for it.  srandom() is then called to
  * initialize the state information.
- * 
+ *
  * Note that on return from srandom(), we set state[-1] to be the type
  * multiplexed with the current value of the rear pointer; this is so
  * successive calls to initstate() won't lose this information and will be
  * able to restart with setstate().
- * 
+ *
  * Note: the first thing we do is save the current state, if any, just like
  * setstate() so that it doesn't matter when initstate is called.
  *

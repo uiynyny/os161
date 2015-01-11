@@ -216,7 +216,7 @@ wait(void)
 /*
  * Idle the processor until something happens.
  */
-void 
+void
 cpu_idle(void)
 {
 	wait();

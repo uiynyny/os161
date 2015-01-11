@@ -101,7 +101,7 @@ LIB=c
 
 SYSCALL_H=$(INSTALLTOP)/include/kern/syscall.h
 
-$(MYBUILDDIR)/syscalls.S: $(TOP)/defs.mk $(SYSCALL_H) 
+$(MYBUILDDIR)/syscalls.S: $(TOP)/defs.mk $(SYSCALL_H)
 $(MYBUILDDIR)/syscalls.S: syscalls/gensyscalls.sh
 $(MYBUILDDIR)/syscalls.S: arch/$(MACHINE)/syscalls-$(MACHINE).S
 	-rm -f $@ $@.tmp

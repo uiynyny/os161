@@ -181,7 +181,7 @@ common_badbuf(struct buftest *info, void *buf, const char *bufdesc)
 	char mydesc[128];
 	int rv;
 
-	snprintf(mydesc, sizeof(mydesc), "%s with %s buffer", 
+	snprintf(mydesc, sizeof(mydesc), "%s with %s buffer",
 		 info->name, bufdesc);
 	info->setup();
 	rv = info->op(buf);

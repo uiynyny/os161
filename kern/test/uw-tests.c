@@ -185,7 +185,7 @@ vmstats_thread(void *junk, unsigned long num)
         /* NOTE: The number of calls to vmstats_inc below have been manipulated
          * so the checks during printing add up properly and pass the various tests
          */
-        switch(j) { 
+        switch(j) {
           /* Need twice as many TLB faults */
           case VMSTAT_TLB_FAULT:
             vmstats_inc(j);

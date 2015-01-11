@@ -78,7 +78,7 @@ static struct lock *con_userlock_write = NULL;
 
 /*
  * This is for accumulating characters printed before the
- * console is set up. Upon console setup they are dumped 
+ * console is set up. Upon console setup they are dumped
  * to the actual console; thenceforth this space is unused.
  */
 #define DELAYBUFSIZE  1024
@@ -192,7 +192,7 @@ con_input(void *vcs, int ch)
 
 	cs->cs_gotchars[cs->cs_gotchars_head] = ch;
 	cs->cs_gotchars_head = nexthead;
-		
+
 	V(cs->cs_rsem);
 }
 
@@ -211,7 +211,7 @@ con_start(void *vcs)
 
 /*
  * Exported interface.
- * 
+ *
  * Warning: putch must work even in an interrupt handler or with
  * interrupts disabled, and before the console is probed. getch need
  * not, and does not.
@@ -437,8 +437,8 @@ config_con(struct con_softc *cs, int unit)
 		return ENOMEM;
 	}
 
-	cs->cs_rsem = rsem; 
-	cs->cs_wsem = wsem; 
+	cs->cs_rsem = rsem;
+	cs->cs_wsem = wsem;
 	cs->cs_gotchars_head = 0;
 	cs->cs_gotchars_tail = 0;
 

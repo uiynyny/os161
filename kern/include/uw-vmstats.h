@@ -44,8 +44,8 @@
 void vmstats_init(void);                     /* uses locking */
 void _vmstats_init(void);                    /* atomicity must be ensured elsewhere */
 
-/* Increment the specified count 
- * Example use: 
+/* Increment the specified count
+ * Example use:
  *   vmstats_inc(VMSTAT_TLB_FAULT);
  *   vmstats_inc(VMSTAT_PAGE_FAULT_ZERO);
  */

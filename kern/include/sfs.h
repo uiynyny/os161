@@ -43,7 +43,7 @@
 #include <vnode.h>
 
 /*
- * Get on-disk structures and constants that are made available to 
+ * Get on-disk structures and constants that are made available to
  * userland for the benefit of mksfs, dumpsfs, etc.
  */
 #include <kern/sfs.h>

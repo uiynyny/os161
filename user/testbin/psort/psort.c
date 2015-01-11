@@ -724,7 +724,7 @@ mergebins(void)
 			}
 
 			if (!ready[i]) {
-				result = doread("bin", infds[i], 
+				result = doread("bin", infds[i],
 						&val, sizeof(int));
 				if (result == 0) {
 					doclose("bin", infds[i]);

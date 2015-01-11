@@ -117,7 +117,7 @@ main()
 #ifdef USING_ERR_CODES
   TEST_EQUAL(saved_errno, EBADF, "Expected EBAD when trying to write to read only file");
 #endif /* USING_ERR_CODES */
-  
+
   /* Open write only */
   f2 = open("FILE2", O_WRONLY);
   TEST_POSITIVE(f1, "Unable to open FILE2");
@@ -135,7 +135,7 @@ main()
 
   rc = close(f2);
   TEST_EQUAL(rc, SUCCESS, "Unable to close f2");
-  
+
   do {
     f1 = open("FILE1", O_RDWR);
 		saved_errno = errno;

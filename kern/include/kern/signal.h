@@ -40,7 +40,7 @@
 /*
  * Machine-independent definitions for signals.
  */
- 
+
 
 /*
  * The signals.

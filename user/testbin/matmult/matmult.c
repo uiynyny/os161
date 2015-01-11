@@ -27,7 +27,7 @@
  * SUCH DAMAGE.
  */
 
-/* matmult.c 
+/* matmult.c
  *    Test program to do matrix multiplication on large arrays.
  *
  *    This version uses a storage-inefficient technique to get a
@@ -42,8 +42,8 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#define Dim 	72	/* sum total of the arrays doesn't fit in 
-			 * physical memory 
+#define Dim 	72	/* sum total of the arrays doesn't fit in
+			 * physical memory
 			 */
 
 #define RIGHT  8772192		/* correct answer */

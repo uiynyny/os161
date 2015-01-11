@@ -17,7 +17,7 @@
 #    optfile <sym> <file>     if option <sym> is enabled, use file <file>
 #    optofffile <sym> <file>  if option <sym> is disabled, use file <file>
 #    defdevice <dev> <file>   define a device
-#    defattach <dev> <bus> <file> 
+#    defattach <dev> <bus> <file>
 #                             define an attachment for a device to a bus
 #    pseudoattach <dev>       define a pseudo-attachment for a device
 #
@@ -28,14 +28,14 @@
 #
 # Filenames are relative to the top of the kernel tree.
 #
-# The comment character is '#'. 
+# The comment character is '#'.
 #
 # The idea is that the first group of directives is used to set up a
 # static description of all possible configurations for each supported
 # architecture. Then a kernel config file uses the second group of
 # directives to specify a particular configuration. Then this script
 # is used to first check that the configuration is one of the possible
-# ones, and then to set up the compile directory, makefiles, and 
+# ones, and then to set up the compile directory, makefiles, and
 # associated material necessary to actually build that configuration.
 #
 # Further documentation is at the top of conf.kern.
@@ -81,7 +81,7 @@ COMPILEDIR="../compile/$CONFNAME"
 #    Also strip comments.
 #    Simultaneously, do a basic syntax check.
 #
-#    For an introduction to awk, see 
+#    For an introduction to awk, see
 #        http://www.hcs.harvard.edu/~dholland/computers/awk.html
 #
 
@@ -150,12 +150,12 @@ echo "$CONFNAME" $CONFTMP | awk '
 	if (direct == "machine" && NF > 2 && okmd[$3]) {
 	    # machine mips file ...
 	    direct = $3;
-	    foundfields -= 2; 
+	    foundfields -= 2;
 	}
 	else if (direct == "platform" && NF > 2 && okmd[$3]) {
 	    # platform sys161 file ...
 	    direct = $3;
-	    foundfields -= 2; 
+	    foundfields -= 2;
 	}
 
 	# Syntax check: reject unknown directives
@@ -168,7 +168,7 @@ echo "$CONFNAME" $CONFTMP | awk '
 	if (direct=="device") {
 	    # special case - device directive can have 2 or 4 words
 	    if ((NF!=2 && NF!=4) || (NF==4 && $3!="at")) {
-	        msg = sprintf("%s: Invalid arguments", direct); 
+	        msg = sprintf("%s: Invalid arguments", direct);
 		printf "%s: %d: %s\n", filename, lineno, msg;
 		exit(1);
 	    }
@@ -278,7 +278,7 @@ awk < $CONFTMP '
 	    exit(1);
 	}
 
-	# Note that it exists, but is not in use, and remember the 
+	# Note that it exists, but is not in use, and remember the
 	# source file for later.
 	use[dev] = "no";
 	files[dev] = file;
@@ -292,7 +292,7 @@ awk < $CONFTMP '
 	bus = $3;
 	file = $4;
 
-	# Even though we do not use basebus, busunit, or devunit, 
+	# Even though we do not use basebus, busunit, or devunit,
 	# call the routines to compute them, because they check the
 	# syntax.
 
@@ -320,7 +320,7 @@ awk < $CONFTMP '
 
 	# Remember that attachments are defined for this device. If
 	# attachments are defined, when the device is turned on later
-	# an attachment must be specified. 
+	# an attachment must be specified.
 	attachable[basedev] = 1;
     }
 
@@ -636,13 +636,13 @@ awk < $CONFTMP '
     $1=="platform" && $3=="file" {
 	printf "%s * %s\n", $2, $4 >> filelistfile;
     }
-    
+
 ' "filelistfile=$CONFTMP.files" || exit 1
 
 #
 # autoconf.c (which we generate further down) is always compiled in but
 # is not in the list yet. Note that the path to it is where we are about
-# to put it: it lives in the build directory, because it's part of a 
+# to put it: it lives in the build directory, because it's part of a
 # particular build.
 #
 echo "* * compile/$CONFNAME/autoconf.c" >> $CONFTMP.files
@@ -670,7 +670,7 @@ awk < $CONFTMP.files '
     #/\.y$/ { next; }   # will require some makefile hacking to make work
     /\.S$/ { next; }
     /\.o$/ { next; }
-    { 
+    {
 	printf "\n%s: Unrecognized source file type\n", $1;
 	exit(1);
     }
@@ -751,7 +751,7 @@ echo -n ' files.mk'
     awk < $CONFTMP '
 	# Default: optimize.
 	BEGIN { debugflags="-O2"; }
-	$1=="debug" { 
+	$1=="debug" {
 	    debugflags="-g";
 	}
 
@@ -801,7 +801,7 @@ awk < $CONFTMP.attach '{ printf "struct %s_softc;\n", $2 }' >> $ACH
 #
 # second, declare the autoconf_foo functions for unattached devices.
 #
-# The autoconf_foo functions for attached devices are file-static 
+# The autoconf_foo functions for attached devices are file-static
 # in autoconf.c.
 #
 
@@ -881,12 +881,12 @@ echo '#include "autoconf.h"' >> $ACC
 echo >> $ACC
 awk < $CONFTMP.attach '$1=="attach" || $1=="pseudo" { print $2 }' | sort -u |\
   awk '
-    { 
+    {
 	printf "static void autoconf_%s(struct %s_softc *, int);\n", $1, $1;
     }
 ' >> $ACC
 awk < $CONFTMP.attach '$1=="attach" { print $2 }' | sort -u | awk '
-    { 
+    {
 	printf "static int nextunit_%s;\n", $1;
     }
 ' >> $ACC
@@ -916,7 +916,7 @@ awk < $CONFTMP.attach '
 	printf "\tresult = config_%s(dev, devunit);\n", dev;
 	printf "\tif (result != 0) {\n";
 	printf "\t\tkprintf(\": %%s\\n\", strerror(result));\n";
-		# Note: we leak the device softc instead of trying 
+		# Note: we leak the device softc instead of trying
 		# to clean it up.
 	printf "\t\t/* should really clean up dev */\n";
 	printf "\t\treturn result;\n";
@@ -962,7 +962,7 @@ awk < $CONFTMP.attach '
     function genprobe(dev, devunit, bus, busunit) {
 
 	tryfunc = sprintf("tryattach_%s_to_%s", dev, bus);
-	    
+
 	if (busunit!="*") {
 	    printf "\tif (busunit==%d) {\n", busunit;
 	}

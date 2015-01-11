@@ -66,7 +66,7 @@ dumpsb(void)
 		errx(1, "Not an sfs filesystem");
 	}
 	sp.sp_volname[sizeof(sp.sp_volname)-1] = 0;
-	printf("Volume name: %-40s  %u blocks\n", sp.sp_volname, 
+	printf("Volume name: %-40s  %u blocks\n", sp.sp_volname,
 	       SWAPL(sp.sp_nblocks));
 
 	return SWAPL(sp.sp_nblocks);

@@ -51,7 +51,7 @@ extern void mips_threadstart(/* arguments are in unusual registers */);
  * store the arguments in the s* registers, and use a bit of asm
  * (mips_threadstart) to move them and then jump to thread_startup.
  */
-void 
+void
 switchframe_init(struct thread *thread,
 		 void (*entrypoint)(void *data1, unsigned long data2),
 		 void *data1, unsigned long data2)
@@ -72,7 +72,7 @@ switchframe_init(struct thread *thread,
 
         /*
          * Now set the important parts: pass through the three arguments,
-         * and set the return address register to the place we want 
+         * and set the return address register to the place we want
          * execution to begin.
          *
          * Thus, when switchframe_switch does its "j ra", it will

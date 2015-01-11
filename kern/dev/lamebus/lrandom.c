@@ -73,13 +73,13 @@ lrandom_read(void *devdata, struct uio *uio)
 	int result;
 
 	while (uio->uio_resid > 0) {
-		val = bus_read_register(lr->lr_bus, lr->lr_buspos, 
+		val = bus_read_register(lr->lr_bus, lr->lr_buspos,
 					  LR_REG_RAND);
 		result = uiomove(&val, sizeof(val), uio);
 		if (result) {
 			return result;
 		}
 	}
-	
+
 	return 0;
 }

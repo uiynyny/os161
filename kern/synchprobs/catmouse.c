@@ -21,7 +21,7 @@
 
 
 /*
- * 
+ *
  * Includes
  *
  */
@@ -78,8 +78,8 @@ static struct semaphore *CatMouseWait;
 /*
  *
  * shared simulation state
- * 
- * note: this is state should be used only by the 
+ *
+ * note: this is state should be used only by the
  *  functions in this file, hence the static declarations
  *
  */
@@ -89,25 +89,25 @@ static struct semaphore *CatMouseWait;
  *  bowl[i-1] = 'm' if a mouse is eating at the ith bowl
  *  bowl[i-1] = '-' otherwise */
 
-/* The elements within the array can be changed by multiple 
+/* The elements within the array can be changed by multiple
  * threads so the contents are volatile.
  */
 static volatile char *bowls;
 
-/* how many cats are currently eating? 
- * modified by multiple threads, so volatile 
+/* how many cats are currently eating?
+ * modified by multiple threads, so volatile
  */
 static volatile int eating_cats_count;
 
-/* how many mice are currently eating? 
- * modified by different threads, so volatile 
+/* how many mice are currently eating?
+ * modified by different threads, so volatile
  */
 static volatile int eating_mice_count;
 
 /* semaphore used to provide mutual exclusion
- * for reading and writing the shared simulation state 
- * The actual mutex is created/initizliaed by one thread and not 
- * modified by others: not volatile 
+ * for reading and writing the shared simulation state
+ * The actual mutex is created/initizliaed by one thread and not
+ * modified by others: not volatile
  */
 static struct semaphore *mutex;
 
@@ -125,7 +125,7 @@ static struct semaphore *perf_mutex;
 
 /*
  * initialize_bowls()
- * 
+ *
  * Purpose:
  *   initializes simulation of cats and mice and bowls
  *
@@ -170,14 +170,14 @@ initialize_bowls()
   mouse_total_wait_secs = 0;
   mouse_total_wait_nsecs = 0;
   mouse_wait_count = 0;
-  
+
   return;
 }
 
 
 /*
  * cleanup_bowls()
- * 
+ *
  * Purpose:
  *   Releases resources created by initialize_bowls.
  *
@@ -207,7 +207,7 @@ cleanup_bowls()
 
 /*
  * print_state()
- * 
+ *
  * Purpose:
  *   displays the simulation state
  *
@@ -431,7 +431,7 @@ mouse_sleep(int sleep_time)
 
 static
 void
-cat_simulation(void * unusedpointer, 
+cat_simulation(void * unusedpointer,
                unsigned long catnumber)
 {
   int i;
@@ -475,7 +475,7 @@ cat_simulation(void * unusedpointer,
   }
 
   /* indicate that this cat simulation is finished */
-  V(CatMouseWait); 
+  V(CatMouseWait);
 }
 
 /*
@@ -538,7 +538,7 @@ mouse_simulation(void * unusedpointer,
   }
 
   /* indicate that this mouse is finished */
-  V(CatMouseWait); 
+  V(CatMouseWait);
 }
 
 /*
@@ -612,19 +612,19 @@ catmouse(int nargs,
       kprintf("catmouse: invalid cat eating time: %d\n",CatEatTime);
       return 1;
     }
-  
+
     CatSleepTime = atoi(args[6]);
     if (CatSleepTime < 0) {
       kprintf("catmouse: invalid cat sleeping time: %d\n",CatSleepTime);
       return 1;
     }
-  
+
     MouseEatTime = atoi(args[7]);
     if (MouseEatTime < 0) {
       kprintf("catmouse: invalid mouse eating time: %d\n",MouseEatTime);
       return 1;
     }
-  
+
     MouseSleepTime = atoi(args[8]);
     if (MouseSleepTime < 0) {
       kprintf("catmouse: invalid mouse sleeping time: %d\n",MouseSleepTime);
@@ -667,7 +667,7 @@ catmouse(int nargs,
       if (error) {
 	panic("mouse_simulation: thread_fork failed: %s\n",strerror(error));
       }
-    } 
+    }
   }
   /* launch any remaining mice */
   for(mouseindex = catindex; mouseindex < NumMice; mouseindex++) {
@@ -676,9 +676,9 @@ catmouse(int nargs,
       panic("mouse_simulation: thread_fork failed: %s\n",strerror(error));
     }
   }
-  
+
   /* wait for all of the cats and mice to finish before
-     terminating */  
+     terminating */
   for(i=0;i<(NumCats+NumMice);i++) {
     P(CatMouseWait);
   }

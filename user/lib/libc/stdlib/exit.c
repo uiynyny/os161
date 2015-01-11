@@ -49,7 +49,7 @@ exit(int code)
  * The mips gcc we were using in 2001, and probably other versions as
  * well, knows more than is healthy: it knows without being told that
  * exit and _exit don't return.
- * 
+ *
  * This causes it to make foolish optimizations that cause broken
  * things to happen if _exit *does* return, as it does in the base
  * system (because it's unimplemented) and may also do if someone has

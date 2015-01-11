@@ -46,7 +46,7 @@ void
 ram_bootstrap(void)
 {
 	size_t ramsize;
-	
+
 	/* Get size of RAM. */
 	ramsize = mainbus_ramsize();
 
@@ -54,7 +54,7 @@ ram_bootstrap(void)
 	 * This is the same as the last physical address, as long as
 	 * we have less than 508 megabytes of memory. If we had more,
 	 * various annoying properties of the MIPS architecture would
-	 * force the RAM to be discontiguous. This is not a case we 
+	 * force the RAM to be discontiguous. This is not a case we
 	 * are going to worry about.
 	 */
 	if (ramsize > 508*1024*1024) {
@@ -63,13 +63,13 @@ ram_bootstrap(void)
 
 	lastpaddr = ramsize;
 
-	/* 
+	/*
 	 * Get first free virtual address from where start.S saved it.
 	 * Convert to physical address.
 	 */
 	firstpaddr = firstfree - MIPS_KSEG0;
 
-	kprintf("%uk physical memory available\n", 
+	kprintf("%uk physical memory available\n",
 		(lastpaddr-firstpaddr)/1024);
 }
 
@@ -88,7 +88,7 @@ ram_bootstrap(void)
  * it's not a legal *allocatable* physical address, because it's the
  * page with the exception handlers on it.
  *
- * This function should not be called once the VM system is initialized, 
+ * This function should not be called once the VM system is initialized,
  * so it is not synchronized.
  */
 paddr_t
@@ -114,7 +114,7 @@ ram_stealmem(unsigned long npages)
  * initializes in order to find out what memory it has available to
  * manage.
  *
- * This function should not be called once the VM system is initialized, 
+ * This function should not be called once the VM system is initialized,
  * so it is not synchronized.
  */
 void

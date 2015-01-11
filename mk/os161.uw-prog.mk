@@ -28,6 +28,6 @@ $(MYBUILDDIR)/$(PROG).nm:	$(PROG).c $(MYBUILDDIR)/$(PROG)
 	cs350-nm -n $(MYBUILDDIR)/$(PROG) > $(MYBUILDDIR)/$(PROG).nm
 
 clean:
-	-/bin/rm $(EXTRAS)	
+	-/bin/rm $(EXTRAS)
 
 .PHONY: clean echo

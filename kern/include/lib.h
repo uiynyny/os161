@@ -128,7 +128,7 @@ void kfree(void *ptr);
 void kheap_printstats(void);
 
 /*
- * C string functions. 
+ * C string functions.
  *
  * kstrdup is like strdup, but calls kmalloc instead of malloc.
  * If out of memory, it returns NULL.

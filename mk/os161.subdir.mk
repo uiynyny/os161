@@ -29,7 +29,7 @@ BASETARGETS?=\
 	all depend install install-staging clean distclean tags \
 	cleandir stage dependall build rebuild fullrebuild
 
-# first, make each target depend on its -subdirs target, 
+# first, make each target depend on its -subdirs target,
 # and declare both PHONY.
 .for _T_ in $(BASETARGETS) $(EXTRATARGETS)
 $(_T_): $(_T_)-subdirs .WAIT

@@ -100,7 +100,7 @@ lseek_file_stdin(void)
 		_exit(0);
 	}
 
-	/* 
+	/*
 	 * Move file to stdin.
 	 * Use stdin (rather than stdout or stderr) to maximize the
 	 * chances of detecting any special-case handling of fds 0-2.
@@ -222,7 +222,7 @@ lseek_loc_pasteof(void)
 	}
 
 	if (pos != (off_t) strlen(message)) {
-		warnx("FAILURE: seek to EOF got %ld (should be %d)", 
+		warnx("FAILURE: seek to EOF got %ld (should be %d)",
 		      (long) pos, strlen(message));
 		goto out;
 	}

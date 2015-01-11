@@ -87,7 +87,7 @@ TAGS_HEADERS=\
 all: includelinks .WAIT $(KERNEL)
 
 #
-# Here's how we link the kernel. 
+# Here's how we link the kernel.
 #
 # vers.c/.o is generated on every build. It contains a numeric serial
 # number incremented every time newvers.sh is run.  These values are

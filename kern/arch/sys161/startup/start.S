@@ -53,7 +53,7 @@ __start:
    .mask 0x80000000, -4	/* register 31 (ra) saved at (sp+24)-4 */
    addiu sp, sp, -24
    sw ra, 20(sp)
-   
+
    /*
     * The System/161 loader sets up a boot stack for the first
     * processor at the top of physical memory, and passes us a single
@@ -77,7 +77,7 @@ __start:
     *         P
     *                         wasted space (< 1 page)
     *                         copy of the boot string
-    *         _end          
+    *         _end
     *                         kernel
     *         0x80000200
     *                         exception handlers
@@ -87,7 +87,7 @@ __start:
     */
 
    la s0, _end		/* stash _end in a saved register */
-   
+
    move a1, a0		/* move bootstring to the second argument */
    move a0, s0		/* make _end the first argument */
    jal strcpy		/* call strcpy(_end, bootstring) */
@@ -99,8 +99,8 @@ __start:
 
    add t0, s0, v0	/* add in the length of the string */
    addi t0, t0, 1	/* and the null terminator */
-   
-   
+
+
    addi t0, t0, 4095	/* round up to next page boundary */
    li   t1, 0xfffff000
    and  t0, t0, t1
@@ -168,7 +168,7 @@ __start:
     *
     * The MIPS has six hardware interrupt lines and two software interrupts.
     * These are individually maskable in the status register. However, we
-    * don't use this feature (for simplicity) - we only use the master 
+    * don't use this feature (for simplicity) - we only use the master
     * interrupt enable/disable flag in bit 0. So enable all of those bits
     * now and forget about them.
     *
@@ -186,7 +186,7 @@ __start:
     *
     * Thus, the actual value we write is CST_IRQMASK.
     */
-   
+
    li  t0, CST_IRQMASK		/* get value */
    mtc0 t0, c0_status		/* set status register */
 
@@ -207,7 +207,7 @@ __start:
     * instead of the two it takes to set up a full 32-bit address.
     */
    la gp, _gp
-   
+
    /*
     * We're all set up!
     * Fetch the copy of the bootstring as the argument, and call main.
@@ -240,7 +240,7 @@ panicstr:
    .type cpu_start_secondary,@function
    .ent cpu_start_secondary
 cpu_start_secondary:
-   
+
    /*
     * When we get here our stack points to the CRAM area of the bus
     * controller per-CPU space. This means we can, with a bit of
@@ -295,7 +295,7 @@ cpu_start_secondary:
     */
    li  t0, CST_IRQMASK		/* get value */
    mtc0 t0, c0_status		/* set status register */
-   
+
    /*
     * Load the CPU number into the PTBASE field of the CONTEXT
     * register, as described above.

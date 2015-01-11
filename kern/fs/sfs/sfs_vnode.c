@@ -125,7 +125,7 @@ int
 sfs_bused(struct sfs_fs *sfs, uint32_t diskblock)
 {
 	if (diskblock >= sfs->sfs_super.sp_nblocks) {
-		panic("sfs: sfs_bused called on out of range block %u\n", 
+		panic("sfs: sfs_bused called on out of range block %u\n",
 		      diskblock);
 	}
 	return bitmap_isset(sfs->sfs_freemap, diskblock);
@@ -321,7 +321,7 @@ sfs_partialio(struct sfs_vnode *sv, struct uio *uio,
 	uint32_t diskblock;
 	uint32_t fileblock;
 	int result;
-	
+
 	/* Allocate missing blocks if and only if we're writing */
 	int doalloc = (uio->uio_rw==UIO_WRITE);
 
@@ -427,11 +427,11 @@ sfs_blockio(struct sfs_vnode *sv, struct uio *uio)
 	saveres = uio->uio_resid;
 	diskres = SFS_BLOCKSIZE;
 	uio->uio_resid = diskres;
-	
+
 	result = sfs_rwblock(sfs, uio);
 
 	/*
-	 * Now, restore the original uio_offset and uio_resid and update 
+	 * Now, restore the original uio_offset and uio_resid and update
 	 * them by the amount of I/O done.
 	 */
 	uio->uio_offset = (uio->uio_offset - diskoff) + saveoff;
@@ -528,7 +528,7 @@ sfs_io(struct sfs_vnode *sv, struct uio *uio)
  out:
 
 	/* If writing, adjust file length */
-	if (uio->uio_rw == UIO_WRITE && 
+	if (uio->uio_rw == UIO_WRITE &&
 	    uio->uio_offset > (off_t)sv->sv_i.sfi_size) {
 		sv->sv_i.sfi_size = uio->uio_offset;
 		sv->sv_dirty = true;
@@ -561,7 +561,7 @@ sfs_readdir(struct sfs_vnode *sv, struct sfs_dir *sd, int slot)
 	/* Compute the actual position in the directory to read. */
 	actualpos = slot * sizeof(struct sfs_dir);
 
-	/* Set up a uio to do the read */ 
+	/* Set up a uio to do the read */
 	uio_kinit(&iov, &ku, sd, sizeof(struct sfs_dir), actualpos, UIO_READ);
 
 	/* do it */
@@ -596,7 +596,7 @@ sfs_writedir(struct sfs_vnode *sv, struct sfs_dir *sd, int slot)
 	KASSERT(slot>=0);
 	actualpos = slot * sizeof(struct sfs_dir);
 
-	/* Set up a uio to do the write */ 
+	/* Set up a uio to do the write */
 	uio_kinit(&iov, &ku, sd, sizeof(struct sfs_dir), actualpos, UIO_WRITE);
 
 	/* do it */
@@ -730,7 +730,7 @@ sfs_dir_link(struct sfs_vnode *sv, const char *name, uint32_t ino, int *slot)
 
 	/* Write the entry. */
 	return sfs_writedir(sv, &sd, emptyslot);
-	
+
 }
 
 /*
@@ -742,7 +742,7 @@ sfs_dir_unlink(struct sfs_vnode *sv, int slot)
 {
 	struct sfs_dir sd;
 
-	/* Initialize a suitable directory entry... */ 
+	/* Initialize a suitable directory entry... */
 	bzero(&sd, sizeof(sd));
 	sd.sfd_ino = SFS_NOINO;
 
@@ -756,7 +756,7 @@ sfs_dir_unlink(struct sfs_vnode *sv, int slot)
  */
 static
 int
-sfs_lookonce(struct sfs_vnode *sv, const char *name, 
+sfs_lookonce(struct sfs_vnode *sv, const char *name,
 		struct sfs_vnode **ret,
 		int *slot)
 {
@@ -797,7 +797,7 @@ sfs_makeobj(struct sfs_fs *sfs, int type, struct sfs_vnode **ret)
 	int result;
 
 	/*
-	 * First, get an inode. (Each inode is a block, and the inode 
+	 * First, get an inode. (Each inode is a block, and the inode
 	 * number is the block number, so just get a block.)
 	 */
 
@@ -1074,7 +1074,7 @@ sfs_gettype(struct vnode *v, uint32_t *ret)
  * Check for legal seeks on files. Allow anything non-negative.
  * We could conceivably, here, prohibit seeking past the maximum
  * file size our inode structure can support, but we don't - few
- * people ever bother to check lseek() for failure and having 
+ * people ever bother to check lseek() for failure and having
  * read() or write() fail is sufficient.
  */
 static
@@ -1182,7 +1182,7 @@ sfs_truncate(struct vnode *v, off_t len)
 			vfs_biglock_release();
 			return result;
 		}
-		
+
 		hasnonzero = 0;
 		iddirty = 0;
 		for (j=0; j<SFS_DBPERIDB; j++) {
@@ -1311,7 +1311,7 @@ sfs_creat(struct vnode *v, const char *name, bool excl, mode_t mode,
 	newguy->sv_dirty = true;
 
 	*ret = &newguy->sv_v;
-	
+
 	vfs_biglock_release();
 	return 0;
 }
@@ -1393,7 +1393,7 @@ sfs_remove(struct vnode *dir, const char *name)
  */
 static
 int
-sfs_rename(struct vnode *d1, const char *n1, 
+sfs_rename(struct vnode *d1, const char *n1,
 	   struct vnode *d2, const char *n2)
 {
 	struct sfs_vnode *sv = d1->vn_data;
@@ -1428,7 +1428,7 @@ sfs_rename(struct vnode *d1, const char *n1,
 	if (result) {
 		goto puke;
 	}
-	
+
 	/* Increment the link count, and mark inode dirty */
 	g1->sv_i.sfi_linkcount++;
 	g1->sv_dirty = true;
@@ -1460,7 +1460,7 @@ sfs_rename(struct vnode *d1, const char *n1,
 	result2 = sfs_dir_unlink(sv, slot2);
 	if (result2) {
 		kprintf("sfs: rename: %s\n", strerror(result));
-		kprintf("sfs: rename: while cleaning up: %s\n", 
+		kprintf("sfs: rename: while cleaning up: %s\n",
 			strerror(result2));
 		panic("sfs: rename: Cannot recover\n");
 	}
@@ -1476,7 +1476,7 @@ sfs_rename(struct vnode *d1, const char *n1,
  * lookparent returns the last path component as a string and the
  * directory it's in as a vnode.
  *
- * Since we don't support subdirectories, this is very easy - 
+ * Since we don't support subdirectories, this is very easy -
  * return the root dir and copy the path.
  */
 static
@@ -1526,7 +1526,7 @@ sfs_lookup(struct vnode *v, char *path, struct vnode **ret)
 		vfs_biglock_release();
 		return ENOTDIR;
 	}
-	
+
 	result = sfs_lookonce(sv, path, &final, NULL);
 	if (result) {
 		vfs_biglock_release();
@@ -1616,7 +1616,7 @@ static const struct vnode_ops sfs_dirops = {
 	sfs_opendir,
 	sfs_close,
 	sfs_reclaim,
-	
+
 	ISDIR,   /* read */
 	ISDIR,   /* readlink */
 	UNIMP,   /* getdirentry */
@@ -1727,7 +1727,7 @@ sfs_loadvnode(struct sfs_fs *sfs, uint32_t ino, int forcetype,
 	    case SFS_TYPE_DIR:
 		ops = &sfs_dirops;
 		break;
-	    default: 
+	    default:
 		panic("sfs: loadvnode: Invalid inode type "
 		      "(inode %u, type %u)\n",
 		      ino, sv->sv_i.sfi_type);

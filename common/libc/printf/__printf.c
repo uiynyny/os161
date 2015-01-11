@@ -53,7 +53,7 @@
 #include <stdarg.h>
 
 
-/* 
+/*
  * Do we want to support "long long" types with %lld?
  *
  * Using 64-bit types with gcc causes gcc to emit calls to functions
@@ -73,9 +73,9 @@
 #endif
 
 
-/* 
- * Space for a long long in base 8, plus a NUL, plus one 
- * character extra for slop. 
+/*
+ * Space for a long long in base 8, plus a NUL, plus one
+ * character extra for slop.
  *
  * CHAR_BIT is the number of bits in a char; thus sizeof(long long)*CHAR_BIT
  * is the number of bits in a long long. Each octal digit prints 3 bits.
@@ -101,9 +101,9 @@ typedef struct {
 	int in_pct;
 
 	/* Size of the integer argument to retrieve */
-	enum { 
-		INTSZ, 
-		LONGSZ, 
+	enum {
+		INTSZ,
+		LONGSZ,
 #ifdef USE_LONGLONG
 		LLONGSZ,
 #endif
@@ -186,7 +186,7 @@ __pf_modifier(PF *pf, int ch)
 	case '-':
 		pf->rightspc = 1;
 		break;
-	case 'l': 
+	case 'l':
 		if (pf->size==LONGSZ) {
 #ifdef USE_LONGLONG
 			pf->size = LLONGSZ;
@@ -196,7 +196,7 @@ __pf_modifier(PF *pf, int ch)
 			pf->size = LONGSZ;
 		}
 		break;
-	case '0': 
+	case '0':
 		if (pf->spacing>0) {
 			/*
 			 * Already seen some digits; this is part of the
@@ -237,7 +237,7 @@ void
 __pf_getnum(PF *pf, int ch)
 {
 	if (ch=='p') {
-		/* 
+		/*
 		 * Pointer.
 		 *
 		 * uintptr_t is a C99 standard type that's an unsigned
@@ -394,7 +394,7 @@ __pf_printstuff(PF *pf,
  * Function to convert a number to ascii and then print it.
  *
  * Works from right to left in a buffer of NUMBER_BUF_SIZE bytes.
- * NUMBER_BUF_SIZE is set so that the longest number string we can 
+ * NUMBER_BUF_SIZE is set so that the longest number string we can
  * generate (a long long printed in octal) will fit. See above.
  */
 static
@@ -405,7 +405,7 @@ __pf_printnum(PF *pf)
 	const char *const digits = "0123456789abcdef";
 
 	char buf[NUMBER_BUF_SIZE];   /* Accumulation buffer for string. */
-	char *x;                     /* Current pointer into buf. */ 
+	char *x;                     /* Current pointer into buf. */
 	unsigned INTTYPE xnum;       /* Current value to print. */
 	const char *bprefix;         /* Base prefix (0, 0x, or nothing) */
 	const char *sprefix;         /* Sign prefix (- or nothing) */
@@ -419,17 +419,17 @@ __pf_printnum(PF *pf)
 	/* Initialize value. */
 	xnum = pf->num;
 
-	/* 
+	/*
 	 * Convert a single digit.
-	 * Do this loop at least once - that way 0 prints as 0 and not "". 
+	 * Do this loop at least once - that way 0 prints as 0 and not "".
 	 */
 	do {
-		/* 
+		/*
 		 * Get the digit character for the least significant
 		 * part of xnum.
 		 */
 		*x = digits[xnum % pf->base];
-		
+
 		/*
 		 * Back up the pointer to point to the next space to the left.
 		 */
@@ -531,8 +531,8 @@ __pf_send(PF *pf, int ch)
 		__pf_endfield(pf);
 	}
 	else {
-		/* 
-		 * %%, %c, or illegal character. 
+		/*
+		 * %%, %c, or illegal character.
 		 * Illegal characters are printed like %%.
 		 * for example, %5k prints "    k".
 		 */
@@ -555,7 +555,7 @@ __pf_send(PF *pf, int ch)
  * then send it each character from the format string.
  */
 int
-__vprintf(void (*func)(void *clientdata, const char *str, size_t len), 
+__vprintf(void (*func)(void *clientdata, const char *str, size_t len),
 	  void *clientdata, const char *format, va_list ap)
 {
 	PF pf;

@@ -36,7 +36,7 @@ distcleanhostcompile:
 #
 # The awk scripts and the first sed invocation transform the results to
 # have one file per line.
-# 
+#
 # The second sed command changes the .o filenames in gcc's output
 # to .ho names.
 #
@@ -76,7 +76,7 @@ $(MYBUILDDIR)/$(_S_:T:R).ho: $(_S_)
 .endfor
 
 # Make non-file rules PHONY.
-.PHONY: clean cleanhostcompile distclean distcleanhostcompile 
+.PHONY: clean cleanhostcompile distclean distcleanhostcompile
 .PHONY: depend dependhostcompile tags tagshostcompile
 
 # End.

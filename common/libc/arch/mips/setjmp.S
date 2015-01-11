@@ -44,7 +44,7 @@
     * returns before longjmp is called, the results are undefined. We
     * only need to save registers, not the whole contents of the stack.)
     */
-   
+
    .globl setjmp
    .type setjmp,@function
    .ent setjmp

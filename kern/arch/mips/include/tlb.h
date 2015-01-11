@@ -49,7 +49,7 @@
  *        was found. ENTRYLO is not actually used, but must be set; 0
  *        should be passed.
  *
- *        IMPORTANT NOTE: An entry may be matching even if the valid bit 
+ *        IMPORTANT NOTE: An entry may be matching even if the valid bit
  *        is not set. To completely invalidate the TLB, load it with
  *        translations for addresses in one of the unmapped address
  *        ranges - these will never be matched.

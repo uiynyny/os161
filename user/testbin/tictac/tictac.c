@@ -218,9 +218,9 @@ do_move(int player)
 	char cx;
 
 	first = TRUE;
-	printf("Player %d (%c), your move\n", player, 
+	printf("Player %d (%c), your move\n", player,
 	       player == X_PLAYER ? 'X' : 'O');
-	
+
 	while (TRUE) {
 		printf("Which row [0-%d]: ", DIM-1);
 		if (read_string(answer, MAXSTRING) < 0)
@@ -259,7 +259,7 @@ do_move(int player)
  * Checks if the move into position x, y created a tic-tac-toe.
  * There are four possible ways to win -- horizontal, vertical,
  * and the two diagonals; check each one using a separate routine.
- * 
+ *
  * Four routines for checking the wins are:
  * win_row	The horizontal spots are all the same as this current mark.
  * win_column	The vertical spots are all the same as this current mark.
@@ -314,7 +314,7 @@ win_row(int x, int marker)
 		if (board[x][i] != marker)
 			return(FALSE);
 	return(TRUE);
-}	
+}
 
 bool
 win_diag_left(int x, int y, int marker)
@@ -362,7 +362,7 @@ read_string(char *buf, int length)
 	int	i;
 
 	i = 0;
-	while ((char_read = getchar()) != EOF && char_read != NEWLINE && 
+	while ((char_read = getchar()) != EOF && char_read != NEWLINE &&
 	    i < length) {
 		buf[i] = (char) char_read;
 		i++;

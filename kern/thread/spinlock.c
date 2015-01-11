@@ -128,7 +128,7 @@ spinlock_release(struct spinlock *lk)
 
 /*
  * Check if the current cpu holds the lock.
- */ 
+ */
 bool
 spinlock_do_i_hold(struct spinlock *lk)
 {

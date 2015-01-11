@@ -69,7 +69,7 @@ check_buffer(void)
 			errx(1, "Read error: %s", buffer);
 		}
 	}
-	
+
 	putchar(ch);
 }
 
@@ -78,7 +78,7 @@ subproc_read(void)
 {
 	int fd;
 	int i, res;
-      
+
 	printf("File Reader starting ...\n\n");
 
 	fd = open(FNAME, O_RDONLY);

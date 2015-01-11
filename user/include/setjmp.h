@@ -36,14 +36,14 @@
 /*
  * Functions.
  *
- * setjmp saves the current processor state in the jmp_buf and 
+ * setjmp saves the current processor state in the jmp_buf and
  * returns 0. A subsequent call to longjmp with the same jmp_buf
  * causes execution to return to where setjmp was called. setjmp
  * returns a second time, this time returning CODE. (If CODE is
  * 0, it is forced to 1.)
  *
  * If the stack frame that called setjmp returns before longjmp is
- * called, the results are undefined. 
+ * called, the results are undefined.
  */
 
 int setjmp(jmp_buf jb);

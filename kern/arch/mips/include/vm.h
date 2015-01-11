@@ -53,7 +53,7 @@
 #define MIPS_KSEG1  0xa0000000
 #define MIPS_KSEG2  0xc0000000
 
-/* 
+/*
  * The first 512 megs of physical space can be addressed in both kseg0 and
  * kseg1. We use kseg0 for the kernel. This macro returns the kernel virtual
  * address of a given physical address within that range. (We assume we're
@@ -61,7 +61,7 @@
  *
  * N.B. If you, say, call a function that returns a paddr or 0 on error,
  * check the paddr for being 0 *before* you use this macro. While paddr 0
- * is not legal for memory allocation or memory management (it holds 
+ * is not legal for memory allocation or memory management (it holds
  * exception handler code) when converted to a vaddr it's *not* NULL, *is*
  * a valid address, and will make a *huge* mess if you scribble on it.
  */

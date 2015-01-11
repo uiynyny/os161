@@ -70,7 +70,7 @@ main(int argc, char **argv)
 	}
 
 	printf("Starting ctest: stride %d\n", stride);
-	
+
 	/*
 	 * Generate a huge linked list, with each entry pointing to
 	 * the slot STRIDE entries above it. As long as STRIDE and SIZE
@@ -85,7 +85,7 @@ main(int argc, char **argv)
 	/*
 	 * Traverse the list. We stop after hitting each element once.
 	 *
-	 * (If STRIDE was even, this will hit some elements more than 
+	 * (If STRIDE was even, this will hit some elements more than
 	 * once and others not at all.)
 	 */
 	e = &array[0];

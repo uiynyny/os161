@@ -190,7 +190,7 @@ vnode_check(struct vnode *v, const char *opstr)
 	}
 
 	if (v->vn_ops->vop_magic != VOP_MAGIC) {
-		panic("vnode_check: vop_%s: ops with bad magic number %lx\n", 
+		panic("vnode_check: vop_%s: ops with bad magic number %lx\n",
 		      opstr, v->vn_ops->vop_magic);
 	}
 
@@ -210,7 +210,7 @@ vnode_check(struct vnode *v, const char *opstr)
 		panic("vnode_check: vop_%s: zero refcount\n", opstr);
 	}
 	else if (v->vn_refcount > 0x100000) {
-		kprintf("vnode_check: vop_%s: warning: large refcount %d\n", 
+		kprintf("vnode_check: vop_%s: warning: large refcount %d\n",
 			opstr, v->vn_refcount);
 	}
 
@@ -219,7 +219,7 @@ vnode_check(struct vnode *v, const char *opstr)
 		      v->vn_opencount);
 	}
 	else if (v->vn_opencount > 0x100000) {
-		kprintf("vnode_check: vop_%s: warning: large opencount %d\n", 
+		kprintf("vnode_check: vop_%s: warning: large opencount %d\n",
 			opstr, v->vn_opencount);
 	}
 

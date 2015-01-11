@@ -106,7 +106,7 @@ runthreads(int doloud)
 				     doloud ? loudthread : quietthread,
 				     NULL, i);
 		if (result) {
-			panic("threadtest: thread_fork failed %s)\n", 
+			panic("threadtest: thread_fork failed %s)\n",
 			      strerror(result));
 		}
 	}

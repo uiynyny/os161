@@ -93,7 +93,7 @@ syscall(struct trapframe *tf)
 	 * really return a value, just 0 for success and -1 on
 	 * error. Since retval is the value returned on success,
 	 * initialize it to 0 by default; thus it's not necessary to
-	 * deal with it except for calls that return other values, 
+	 * deal with it except for calls that return other values,
 	 * like write.
 	 */
 
@@ -132,7 +132,7 @@ syscall(struct trapframe *tf)
 #endif // UW
 
 	    /* Add stuff here */
- 
+
 	default:
 	  kprintf("Unknown syscall %d\n", callno);
 	  err = ENOSYS;
@@ -154,12 +154,12 @@ syscall(struct trapframe *tf)
 		tf->tf_v0 = retval;
 		tf->tf_a3 = 0;      /* signal no error */
 	}
-	
+
 	/*
 	 * Now, advance the program counter, to avoid restarting
 	 * the syscall over and over again.
 	 */
-	
+
 	tf->tf_epc += 4;
 
 	/* Make sure the syscall code didn't forget to lower spl */

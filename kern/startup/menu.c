@@ -54,6 +54,8 @@
 
 #define MAXMENUARGS  16
 
+extern uint32_t dbflags;
+
 // XXX this should not be in this file
 void
 getinterval(time_t s1, uint32_t ns1, time_t s2, uint32_t ns2,
@@ -259,6 +261,14 @@ cmd_sync(int nargs, char **args)
 	return 0;
 }
 
+/**
+ * Enable thread debugging
+ */
+static int cmd_dth(/*int nargs, char **args*/) {
+	dbflags = DB_THREADS;
+	return 0;
+}
+
 /*
  * Command for doing an intentional panic.
  */
@@ -430,11 +440,12 @@ static const char *opsmenu[] = {
 	"[p]       Other program             ",
 	"[mount]   Mount a filesystem        ",
 	"[unmount] Unmount a filesystem      ",
-	"[bootfs]  Set \"boot\" filesystem     ",
+	"[bootfs]  Set \"boot\" filesystem   ",
 	"[pf]      Print a file              ",
 	"[cd]      Change directory          ",
 	"[pwd]     Print current directory   ",
 	"[sync]    Sync filesystems          ",
+	"[dth]     Enable thread debugging   ",
 	"[panic]   Intentional panic         ",
 	"[q]       Quit and shut down        ",
 	NULL
@@ -538,12 +549,13 @@ static struct {
 	{ "s",		cmd_shell },
 	{ "p",		cmd_prog },
 	{ "mount",	cmd_mount },
-	{ "unmount",	cmd_unmount },
+	{ "unmount",cmd_unmount },
 	{ "bootfs",	cmd_bootfs },
 	{ "pf",		printfile },
 	{ "cd",		cmd_chdir },
 	{ "pwd",	cmd_pwd },
 	{ "sync",	cmd_sync },
+	{ "dth",	cmd_dth },
 	{ "panic",	cmd_panic },
 	{ "q",		cmd_quit },
 	{ "exit",	cmd_quit },

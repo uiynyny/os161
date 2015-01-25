@@ -59,8 +59,7 @@ extern uint32_t dbflags;
 // XXX this should not be in this file
 void
 getinterval(time_t s1, uint32_t ns1, time_t s2, uint32_t ns2,
-	    time_t *rs, uint32_t *rns)
-{
+	time_t *rs, uint32_t *rns) {
 	if (ns2 < ns1) {
 		ns2 += 1000000000;
 		s2--;
@@ -674,8 +673,9 @@ menu_execute(char *line, int isargs)
 	int result;
 
 	for (command = strtok_r(line, ";", &context);
-	     command != NULL;
-	     command = strtok_r(NULL, ";", &context)) {
+		command != NULL;
+		command = strtok_r(NULL, ";", &context)
+	) {
 
 		if (isargs) {
 			kprintf("OS/161 kernel: %s\n", command);
@@ -709,8 +709,7 @@ menu_execute(char *line, int isargs)
  */
 
 void
-menu(char *args)
-{
+menu(char *args) {
 	char buf[64];
 
 	menu_execute(args, 1);

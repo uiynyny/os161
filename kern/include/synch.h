@@ -73,8 +73,14 @@ void V(struct semaphore *);
  * (should be) made internally.
  */
 struct lock {
+
 	char *lk_name;
-	// add what you need here
+	struct wchan *lk_wchan;
+	struct spinlock lk_slk;		// for enforcing atomic lock functions
+	struct thread *lk_holder;	// Thread holding this lock
+
+	volatile bool locked; // current lock locked?
+
 	// (don't forget to mark things volatile as needed)
 };
 

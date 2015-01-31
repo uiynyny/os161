@@ -279,6 +279,7 @@ void cv_destroy(struct cv *cv) {
 }
 
 void cv_wait(struct cv *cv, struct lock *lock) {
+	wchan_lock(cv->cv_wchan);
 	lock_release(lock);
 		wchan_sleep(cv->cv_wchan);
 		// Now waiting for the signal
@@ -286,13 +287,11 @@ void cv_wait(struct cv *cv, struct lock *lock) {
 }
 
 void cv_signal(struct cv *cv, struct lock *lock) {
-	lock_release(lock);
-		wchan_wakeone(cv->cv_wchan);
-	lock_acquire(lock);
+	(void)lock;
+	wchan_wakeone(cv->cv_wchan);
 }
 
 void cv_broadcast(struct cv *cv, struct lock *lock) {
-	lock_release(lock);
-		wchan_wakeall(cv->cv_wchan);
-	lock_acquire(lock);
+	(void)lock;
+	wchan_wakeall(cv->cv_wchan);
 }

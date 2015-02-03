@@ -3,26 +3,43 @@
 #include <synchprobs.h>
 #include <synch.h>
 
-/*
-	This simple default synchronization mechanism allows only creature at a time
-	to eat. The globalCatMouseSem is used as a a lock. We use a semaphore rather
-	than a lock so that this code will work even before locks are implemented.
+/**
+	Global synchronization declarations
 */
+ // sem_count should be the total bowl count
+static struct semaphore *eating;
 
-/*
-	Replace this default synchronization mechanism with your own (better)
-	mechanism needed for your solution. Your mechanism may use any of the
-	available synchronzation primitives, e.g., semaphores, locks, condition
-	variables. You are also free to declare other global variables if your
-	solution requires them.
-*/
+// Use when switching from one species to another
+static struct lock *speciesSwitch;
 
-/*
-	replace this with declarations of any synchronization and other variables
-	you need here
-*/
-static struct semaphore *globalCatMouseSem;
+// Use when trying to lock down a bowl
+static struct lock *myBowl;
+static struct cv *myBowlIsAvailable;
 
+struct species {
+
+	// Are there members of this species that want to eat?
+	volatile bool wantToEat;
+
+	// Number of creatures of this species that are or will be eating shortly
+	// This must reach 0 before a new type of creature is chosen
+	volatile unsigned int numEating;
+
+	// conditional signaling that this species is done eating for now
+	struct cv *doneEating;
+};
+
+// The two species (this can potentially be arbitrary)
+struct species *cats;
+struct species *mice;
+
+// Array symbolizing how bowls are being used
+// bowlUsage[i] should be true if a bowl is in use, and false otherwise
+volatile bool *bowlUsage;
+
+// helper function declarations
+void before_eating(struct species *, struct species *, unsigned int);
+void after_eating(struct species *, struct species *, unsigned int);
 
 /*
 	The CatMouse simulation will call this function once before any cat or mouse
@@ -36,11 +53,56 @@ void catmouse_sync_init(int bowls) {
 	// replace this default implementation with your own implementation of
 	// catmouse_sync_init
 
-	(void)bowls;  // keep the compiler from complaining about unused parameters
-	globalCatMouseSem = sem_create("globalCatMouseSem",1);
-	if (globalCatMouseSem == NULL) {
-		panic("could not create global CatMouse synchronization semaphore");
+	eating = sem_create("eating", bowls);
+	if (eating == NULL) {
+		panic("could not create global eating synchronization semaphore");
 	}
+
+	speciesSwitch = lock_create("speciesSwitch");
+	if (speciesSwitch == NULL) {
+		panic("could not create global speciesSwitch synchronization lock");
+	}
+
+	myBowl = lock_create("myBowl");
+	if (myBowl == NULL) {
+		panic("could not create global myBowl synchronization lock");
+	}
+	myBowlIsAvailable = cv_create("myBowlIsAvailable");
+	if (myBowlIsAvailable == NULL) {
+		panic("could not create global myBowlIsAvailable synchronization cv");
+	}
+
+	// Initialize bowl usage array
+	bowlUsage = kmalloc(bowls * sizeof(bool));
+	for (int i = 0; i < bowls; i++) {
+		bowlUsage[i] = false;
+	}
+
+	// Allocate cats and mice species data
+	cats = kmalloc(sizeof(struct species));
+	if (cats == NULL) {
+		panic("could not create global cats species structure");
+	}
+
+	mice = kmalloc(sizeof(struct species));
+	if (mice == NULL) {
+		panic("could not create global mice species structure");
+	}
+
+	cats->wantToEat = false;
+	mice->wantToEat = false;
+	cats->numEating = 0;
+	mice->numEating = 0;
+
+	cats->doneEating = cv_create("catsDoneEating");
+	if (cats->doneEating == NULL) {
+		panic("could not create conditional variable catsDoneEating");
+	}
+	mice->doneEating = cv_create("miceDoneEating");
+	if (mice->doneEating == NULL) {
+		panic("could not create conditional variable miceDoneEating");
+	}
+
 	return;
 }
 
@@ -56,10 +118,83 @@ void catmouse_sync_cleanup(int bowls) {
 	// replace this default implementation with your own implementation of
 	// catmouse_sync_cleanup
 	(void)bowls;  // keep the compiler from complaining about unused parameters
-	KASSERT(globalCatMouseSem != NULL);
-	sem_destroy(globalCatMouseSem);
+
+	KASSERT(eating != NULL);
+	KASSERT(speciesSwitch != NULL);
+
+	sem_destroy(eating);
+	lock_destroy(speciesSwitch);
+	lock_destroy(myBowl);
+
+	if (bowlUsage != NULL) {
+		kfree((void *)bowlUsage);
+		bowlUsage = NULL;
+	}
+	if (cats != NULL) {
+		kfree((void *)cats);
+		cats = NULL;
+	}
+	if (mice != NULL) {
+		kfree((void *)mice);
+		mice = NULL;
+	}
 }
 
+void before_eating(struct species *mySpecies, struct species *otherSpecies, unsigned int bowl) {
+
+	// Don't queue any more of this creature if the opposite creature wants to eat
+
+	lock_acquire(speciesSwitch);
+		while (otherSpecies->wantToEat) {
+			cv_wait(otherSpecies->doneEating, speciesSwitch);
+		}
+		mySpecies->wantToEat = true;
+		while (otherSpecies->numEating > 0) {
+			cv_wait(otherSpecies->doneEating, speciesSwitch);
+		}
+		cv_broadcast(otherSpecies->doneEating, speciesSwitch);
+	lock_release(speciesSwitch);
+
+	mySpecies->numEating++;
+
+	// Now it's my species turn
+	// Wait until my bowl is available, if required
+	lock_acquire(myBowl);
+		while (bowlUsage[bowl - 1]) {
+			cv_wait(myBowlIsAvailable, myBowl);
+		}
+		bowlUsage[bowl - 1] = true;
+	lock_release(myBowl);
+
+	P(eating);
+	// Now we eat!
+}
+
+void after_eating(struct species *mySpecies, struct species *otherSpecies, unsigned int bowl) {
+
+	V(eating); // done eating
+
+	// done eating, let others wanting to use my bowl know that it's available
+	lock_acquire(myBowl);
+		bowlUsage[bowl - 1] = false;
+		cv_broadcast(myBowlIsAvailable, myBowl);
+	lock_release(myBowl);
+
+	mySpecies->wantToEat = false;
+	mySpecies->numEating--;
+	cv_signal(mySpecies->doneEating, speciesSwitch); // anybody else want to eat?
+
+	if (otherSpecies->wantToEat) {
+		// Wait until this species is fully done eating before letting them sleep
+		lock_acquire(speciesSwitch);
+			while (mySpecies->numEating > 0) {
+				cv_wait(mySpecies->doneEating, speciesSwitch);
+			}
+			cv_signal(mySpecies->doneEating, speciesSwitch);
+		lock_release(speciesSwitch);
+	}
+
+}
 
 /*
 	The CatMouse simulation will call this function each time a cat wants
@@ -73,11 +208,7 @@ void catmouse_sync_cleanup(int bowls) {
 	return value: none
 */
 void cat_before_eating(unsigned int bowl) {
-	// replace this default implementation with your own implementation of
-	// cat_before_eating
-	(void)bowl;  // keep the compiler from complaining about an unused parameter
-	KASSERT(globalCatMouseSem != NULL);
-	P(globalCatMouseSem);
+	before_eating(cats, mice, bowl);
 }
 
 /*
@@ -93,11 +224,7 @@ void cat_before_eating(unsigned int bowl) {
 	return value: none
 */
 void cat_after_eating(unsigned int bowl) {
-	// replace this default implementation with your own implementation of
-	// cat_after_eating
-	(void)bowl;  // keep the compiler from complaining about an unused parameter
-	KASSERT(globalCatMouseSem != NULL);
-	V(globalCatMouseSem);
+	after_eating(cats, mice, bowl);
 }
 
 /*
@@ -112,11 +239,7 @@ void cat_after_eating(unsigned int bowl) {
 	return value: none
 */
 void mouse_before_eating(unsigned int bowl) {
-	// replace this default implementation with your own implementation of
-	// mouse_before_eating
-	(void)bowl;  // keep the compiler from complaining about an unused parameter
-	KASSERT(globalCatMouseSem != NULL);
-	P(globalCatMouseSem);
+	before_eating(mice, cats, bowl);
 }
 
 /*
@@ -132,9 +255,5 @@ void mouse_before_eating(unsigned int bowl) {
 	return value: none
 */
 void mouse_after_eating(unsigned int bowl) {
-	// replace this default implementation with your own implementation of
-	// mouse_after_eating
-	(void)bowl;  // keep the compiler from complaining about an unused parameter
-	KASSERT(globalCatMouseSem != NULL);
-	V(globalCatMouseSem);
+	after_eating(mice, cats, bowl);
 }

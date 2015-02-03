@@ -261,7 +261,7 @@ void
 cvtestthread(void *junk, unsigned long num)
 {
 	int i;
-	volatile int j;
+	volatile int j; // prevents compiler optimization here
 	time_t secs1, secs2;
 	uint32_t nsecs1, nsecs2;
 

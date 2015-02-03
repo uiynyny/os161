@@ -136,11 +136,16 @@ void catmouse_sync_cleanup(int bowls) {
 		kfree((void *)bowlUsage);
 		bowlUsage = NULL;
 	}
+
 	if (cats != NULL) {
+		cv_destroy(cats->doneEating);
+		cats->doneEating = NULL;
 		kfree((void *)cats);
 		cats = NULL;
 	}
 	if (mice != NULL) {
+		cv_destroy(mice->doneEating);
+		mice->doneEating = NULL;
 		kfree((void *)mice);
 		mice = NULL;
 	}

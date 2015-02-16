@@ -161,6 +161,7 @@ struct lock * lock_create(const char *name) {
 	lock->lk_wchan = wchan_create(name);
 	if (lock->lk_wchan == NULL) {
 		// No channel, noo!!!
+		kfree(lock->lk_name);
 		kfree(lock);
 		return NULL;
 	}
@@ -261,6 +262,7 @@ struct cv * cv_create(const char *name) {
 	cv->cv_wchan = wchan_create(name);
 	if (cv->cv_wchan == NULL) {
 		// No channel, noo!!!
+		kfree(cv->cv_name);
 		kfree(cv);
 		return NULL;
 	}
@@ -279,6 +281,11 @@ void cv_destroy(struct cv *cv) {
 }
 
 void cv_wait(struct cv *cv, struct lock *lock) {
+
+	KASSERT(cv != NULL);
+	KASSERT(lock != NULL);
+	KASSERT(lock_do_i_hold(lock));
+
 	wchan_lock(cv->cv_wchan);
 	lock_release(lock);
 		wchan_sleep(cv->cv_wchan);
@@ -287,11 +294,13 @@ void cv_wait(struct cv *cv, struct lock *lock) {
 }
 
 void cv_signal(struct cv *cv, struct lock *lock) {
-	(void)lock;
+	KASSERT(cv != NULL);
+	KASSERT(lock != NULL);
 	wchan_wakeone(cv->cv_wchan);
 }
 
 void cv_broadcast(struct cv *cv, struct lock *lock) {
-	(void)lock;
+	KASSERT(cv != NULL);
+	KASSERT(lock != NULL);
 	wchan_wakeall(cv->cv_wchan);
 }

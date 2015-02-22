@@ -75,9 +75,7 @@
  * stack, starting at sp+16 to skip over the slots for the
  * registerized values, with copyin().
  */
-void
-syscall(struct trapframe *tf)
-{
+void syscall(struct trapframe *tf) {
 	int callno;
 	int32_t retval;
 	int err;
@@ -176,8 +174,6 @@ syscall(struct trapframe *tf)
  *
  * Thus, you can trash it and do things another way if you prefer.
  */
-void
-enter_forked_process(struct trapframe *tf)
-{
+void enter_forked_process(struct trapframe *tf) {
 	(void)tf;
 }

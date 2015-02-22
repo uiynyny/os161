@@ -47,9 +47,7 @@ void syscall(struct trapframe *tf);
 void enter_forked_process(struct trapframe *tf);
 
 /* Enter user mode. Does not return. */
-void enter_new_process(int argc, userptr_t argv, vaddr_t stackptr,
-		       vaddr_t entrypoint);
-
+void enter_new_process(int argc, userptr_t argv, vaddr_t stackptr, vaddr_t entrypoint);
 
 /*
  * Prototypes for IN-KERNEL entry points for system call implementations.

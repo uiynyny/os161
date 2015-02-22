@@ -2,14 +2,12 @@
 #include <unistd.h>
 #include <errno.h>
 
-int
-main()
-{
+int main() {
 	int x;
  	x = close(999);
-  if (x < 0) {
-	  return errno;
-  } else {
-	  return x;
-  }
+	if (x < 0) {
+		return errno;
+	} else {
+		return x;
+	}
 }

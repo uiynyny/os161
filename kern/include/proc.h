@@ -49,14 +49,14 @@ struct semaphore;
  * Process structure.
  */
 struct proc {
-	char *p_name;			/* Name of this process */
-	struct spinlock p_lock;		/* Lock for this structure */
+	char *p_name;					/* Name of this process */
+	struct spinlock p_lock;			/* Lock for this structure */
 	struct threadarray p_threads;	/* Threads in this process */
 
 	/* VM */
 	struct addrspace *p_addrspace;	/* virtual address space */
 
-	/* VFS */
+	/* VFS */ // forked processes can have the same one
 	struct vnode *p_cwd;		/* current working directory */
 
 #ifdef UW
@@ -66,6 +66,9 @@ struct proc {
 	 system calls, since each process will need to keep track of all files
 	 it has opened, not just the console. */
 	struct vnode *console;                /* a vnode for the console device */
+
+	pid_t id,						/* process ID */
+
 #endif
 
 	/* add more material here as needed */

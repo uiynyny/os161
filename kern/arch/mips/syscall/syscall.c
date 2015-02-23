@@ -98,35 +98,44 @@ void syscall(struct trapframe *tf) {
 	retval = 0;
 
 	switch (callno) {
-	    case SYS_reboot:
-		err = sys_reboot(tf->tf_a0);
-		break;
+		case SYS_reboot:
+			err = sys_reboot(tf->tf_a0);
+			break;
 
-	    case SYS___time:
-		err = sys___time((userptr_t)tf->tf_a0,
-				 (userptr_t)tf->tf_a1);
+		case SYS___time:
+			err = sys___time((userptr_t)tf->tf_a0, (userptr_t)tf->tf_a1);
 		break;
 #ifdef UW
 	case SYS_write:
-	  err = sys_write((int)tf->tf_a0,
-			  (userptr_t)tf->tf_a1,
-			  (int)tf->tf_a2,
-			  (int *)(&retval));
+		err = sys_write(
+			(int)tf->tf_a0,
+			(userptr_t)tf->tf_a1,
+			(int)tf->tf_a2,
+			(int *)(&retval)
+		);
+
 	  break;
 	case SYS__exit:
 	  sys__exit((int)tf->tf_a0);
 	  /* sys__exit does not return, execution should not get here */
 	  panic("unexpected return from sys__exit");
 	  break;
+	case SYS_fork:
+		// Process fork will happen here
+		// Set retval to the value of the PID (or whatever was forked)
+		// Returns whether there was an error
+		err = sys_fork((pid_t *)&retval);
+	  break;
 	case SYS_getpid:
 	  err = sys_getpid((pid_t *)&retval);
 	  break;
 	case SYS_waitpid:
-	  err = sys_waitpid((pid_t)tf->tf_a0,
-			    (userptr_t)tf->tf_a1,
-			    (int)tf->tf_a2,
-			    (pid_t *)&retval);
-	  break;
+		err = sys_waitpid((pid_t)tf->tf_a0,
+			(userptr_t)tf->tf_a1,
+			(int)tf->tf_a2,
+			(pid_t *)&retval
+		);
+		break;
 #endif // UW
 
 	    /* Add stuff here */

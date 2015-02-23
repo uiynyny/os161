@@ -48,6 +48,65 @@ void sys__exit(int exitcode) {
 	panic("return from thread_exit in sys_exit\n");
 }
 
+/**
+	The fork system call
+*/
+int sys_fork(pid_t *retval) {
+	(void)retval;
+
+	int i; // iterator
+
+	struct proc *curp = curproc;
+	struct proc *newp;
+	struct addrspace *newp_addrspace;
+
+	// Allocate memory for the new process
+	newp = kmalloc(sizeof(struct proc));
+	if (newp == NULL) {
+		return ENOMEM; // could not allocate, out of memory?
+	}
+
+	// Copy over the process name
+	newp->p_name = kstrdup(curp->p_name);
+	if (newp->p_name == NULL) {
+		kfree(newp);
+		return ENOMEM; // could not allocate, out of memory?
+	}
+
+	// Duplicate the address space
+	as_copy(curp->p_addrspace, &newp->p_addrspace);
+
+	// Initialize this process's spinlock
+	spinlock_init(&newp->plock);
+
+	// Add the cwd to the new process
+	newp->p_cwd = curp->p_cwd;
+	vnode_incref(newp->p_cwd); // increments references to this directory
+
+	// Fork all the threads
+	int numthreads = threadarray_num(curp->p_threads);
+	for (int i = 0; i < numthreads; i++) {
+		struct thread * curp_thread = threadarray_get(&curp->p_threads, i);
+		struct thread * newp_thread;
+
+		thread_fork(const char *name, struct proc *proc,
+                void (*func)(void *, unsigned long),
+                void *data1, unsigned long data2);
+		if () {
+			threadarray_remove(&proc->p_threads, i);
+			spinlock_release(&proc->p_lock);
+			t->t_proc = NULL;
+			return;
+		}
+	}
+	// Copy the current process
+	// Make a new copy of each thread and fork each thread
+	// Copy the stack frame
+
+	// How do we select the process that will run?
+
+	return 0;
+}
 
 /* stub handler for getpid() system call                */
 int sys_getpid(pid_t *retval) {

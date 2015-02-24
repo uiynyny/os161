@@ -36,6 +36,7 @@
  * Note: curproc is defined by <current.h>.
  */
 
+#include <types.h>
 #include <spinlock.h>
 #include <thread.h> /* required for struct threadarray */
 
@@ -44,6 +45,30 @@ struct vnode;
 #ifdef UW
 struct semaphore;
 #endif // UW
+
+/**
+	PID helpers
+*/
+/**
+	Returns the process for the given process ID
+*/
+int proc_index_by_pid(pid_t pid); // returns index for process (or -1 if fail)
+struct proc * proc_by_pid(pid_t pid); // returns actual process
+
+/**
+	Add a process to the complete list of processes.
+	At this point it can be looked up with proc_by_pid
+*/
+void add_proc_to_processes(struct proc *p);
+
+/**
+	Remove a process from the complete list of processes
+	This should only be called by proc_destroy
+*/
+void remove_proc_from_processes(pid_t pid);
+
+// Generates a unique process ID
+pid_t gen_pid(void);
 
 /*
  * Process structure.
@@ -67,7 +92,7 @@ struct proc {
 	 it has opened, not just the console. */
 	struct vnode *console;                /* a vnode for the console device */
 
-	pid_t id,						/* process ID */
+	pid_t id;						/* process ID */
 
 #endif
 

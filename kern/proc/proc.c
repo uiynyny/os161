@@ -50,6 +50,7 @@
 #include <vfs.h>
 #include <synch.h>
 #include <kern/fcntl.h>
+#include <array.h>
 
 /*
  * The process for the kernel; this holds all the kernel-only threads.
@@ -69,15 +70,75 @@ static struct semaphore *proc_count_mutex;
 struct semaphore *no_proc_sem;
 #endif  // UW
 
+// PIDs will be > 0
+pid_t base_pid = 0;
 
+/**
+	Array of processes ordered by process number
+	This will be used to search for processes by PID
+*/
+struct array *processes;
+
+/**
+	Returns the index of the given process in the processes array
+	Binary search implementation
+*/
+int proc_index_by_pid(pid_t pid) {
+	unsigned low = 0;
+	unsigned high = array_num(processes) - 1;
+
+	while (high >= low) {
+		unsigned probe = (high + low) / 2;
+		struct proc * p = array_get(processes, probe);
+		if (pid == p->id) {
+			return probe;
+		} else if (pid < p->id) {
+			high = probe - 1;
+		} else {
+			low = probe + 1;
+		}
+	}
+
+	// No process found for this pid
+	return -1;
+}
+
+/**
+	proc_by_pid returns the process for a given PID by performing a binary
+	search on the processes array.
+*/
+struct proc * proc_by_pid(pid_t pid) {
+	return array_get(processes, proc_index_by_pid(pid));
+}
+
+/**
+	Adds a newly created process to the end of the processes array
+	To be called by proc_create
+*/
+void add_proc_to_processes(struct proc *p) {
+	array_add(processes, p, NULL);
+}
+
+/**
+	To be called by proc_destroy
+*/
+void remove_proc_from_processes(pid_t pid) {
+	unsigned i = proc_index_by_pid(pid);
+	array_remove(processes, i);
+}
+
+/**
+	Generates a unique PID for a process.
+*/
+pid_t gen_pid() {
+	return ++base_pid;
+}
 
 /*
  * Create a proc structure.
  */
-static
-struct proc *
-proc_create(const char *name)
-{
+static struct proc * proc_create(const char *name) {
+
 	struct proc *proc;
 
 	proc = kmalloc(sizeof(*proc));
@@ -101,6 +162,12 @@ proc_create(const char *name)
 
 #ifdef UW
 	proc->console = NULL;
+
+	// Added for A2
+	// Generate a process ID and add it to the processes array
+	proc->id = gen_pid();
+	add_proc_to_processes(proc);
+
 #endif // UW
 
 	return proc;
@@ -109,9 +176,7 @@ proc_create(const char *name)
 /*
  * Destroy a proc structure.
  */
-void
-proc_destroy(struct proc *proc)
-{
+void proc_destroy(struct proc *proc) {
 	/*
          * note: some parts of the process structure, such as the address space,
          *  are destroyed in sys_exit, before we get here
@@ -138,6 +203,10 @@ proc_destroy(struct proc *proc)
 
 
 #ifndef UW  // in the UW version, space destruction occurs in sys_exit, not here
+
+	// Added for A2
+	remove_proc_from_processes(proc->id);
+
 	if (proc->p_addrspace) {
 		/*
 		 * In case p is the currently running process (which
@@ -171,7 +240,7 @@ proc_destroy(struct proc *proc)
 
 #ifdef UW
 	/* decrement the process count */
-        /* note: kproc is not included in the process count, but proc_destroy
+	/* note: kproc is not included in the process count, but proc_destroy
 	   is never called on kproc (see KASSERT above), so we're OK to decrement
 	   the proc_count unconditionally here */
 	P(proc_count_mutex);
@@ -190,23 +259,21 @@ proc_destroy(struct proc *proc)
 /*
  * Create the process structure for the kernel.
  */
-void
-proc_bootstrap(void)
-{
-  kproc = proc_create("[kernel]");
-  if (kproc == NULL) {
-    panic("proc_create for kproc failed\n");
-  }
+void proc_bootstrap(void) {
+	kproc = proc_create("[kernel]");
+	if (kproc == NULL) {
+		panic("proc_create for kproc failed\n");
+}
 #ifdef UW
-  proc_count = 0;
-  proc_count_mutex = sem_create("proc_count_mutex",1);
-  if (proc_count_mutex == NULL) {
-    panic("could not create proc_count_mutex semaphore\n");
-  }
-  no_proc_sem = sem_create("no_proc_sem",0);
-  if (no_proc_sem == NULL) {
-    panic("could not create no_proc_sem semaphore\n");
-  }
+	proc_count = 0;
+	proc_count_mutex = sem_create("proc_count_mutex",1);
+	if (proc_count_mutex == NULL) {
+		panic("could not create proc_count_mutex semaphore\n");
+	}
+	no_proc_sem = sem_create("no_proc_sem",0);
+	if (no_proc_sem == NULL) {
+		panic("could not create no_proc_sem semaphore\n");
+	}
 #endif // UW
 }
 
@@ -216,9 +283,7 @@ proc_bootstrap(void)
  * It will have no address space and will inherit the current
  * process's (that is, the kernel menu's) current directory.
  */
-struct proc *
-proc_create_runprogram(const char *name)
-{
+struct proc * proc_create_runprogram(const char *name) {
 	struct proc *proc;
 	char *console_path;
 
@@ -278,9 +343,7 @@ proc_create_runprogram(const char *name)
  * Add a thread to a process. Either the thread or the process might
  * or might not be current.
  */
-int
-proc_addthread(struct proc *proc, struct thread *t)
-{
+int proc_addthread(struct proc *proc, struct thread *t) {
 	int result;
 
 	KASSERT(t->t_proc == NULL);
@@ -299,9 +362,7 @@ proc_addthread(struct proc *proc, struct thread *t)
  * Remove a thread from its process. Either the thread or the process
  * might or might not be current.
  */
-void
-proc_remthread(struct thread *t)
-{
+void proc_remthread(struct thread *t) {
 	struct proc *proc;
 	unsigned i, num;
 
@@ -329,9 +390,7 @@ proc_remthread(struct thread *t)
  * refcounted. If you implement multithreaded processes, make sure to
  * set up a refcount scheme or some other method to make this safe.
  */
-struct addrspace *
-curproc_getas(void)
-{
+struct addrspace * curproc_getas(void) {
 	struct addrspace *as;
 #ifdef UW
         /* Until user processes are created, threads used in testing
@@ -352,9 +411,7 @@ curproc_getas(void)
  * Change the address space of the current process, and return the old
  * one.
  */
-struct addrspace *
-curproc_setas(struct addrspace *newas)
-{
+struct addrspace * curproc_setas(struct addrspace *newas) {
 	struct addrspace *oldas;
 	struct proc *proc = curproc;
 

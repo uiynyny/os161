@@ -116,18 +116,18 @@ void syscall(struct trapframe *tf) {
 
 	  break;
 	case SYS__exit:
-	  sys__exit((int)tf->tf_a0);
-	  /* sys__exit does not return, execution should not get here */
-	  panic("unexpected return from sys__exit");
-	  break;
+		sys__exit((int)tf->tf_a0);
+		/* sys__exit does not return, execution should not get here */
+		panic("unexpected return from sys__exit");
+		break;
 	case SYS_fork:
 		// Process fork will happen here
 		// Set retval to the value of the PID (or whatever was forked)
 		// Returns whether there was an error
-		err = sys_fork((pid_t *)&retval);
-	  break;
+		err = sys_fork(tf, (pid_t *)&retval);
+		break;
 	case SYS_getpid:
-	  err = sys_getpid((pid_t *)&retval);
+		err = sys_getpid((pid_t *)&retval);
 	  break;
 	case SYS_waitpid:
 		err = sys_waitpid((pid_t)tf->tf_a0,
@@ -183,6 +183,24 @@ void syscall(struct trapframe *tf) {
  *
  * Thus, you can trash it and do things another way if you prefer.
  */
-void enter_forked_process(struct trapframe *tf) {
-	(void)tf;
+void enter_forked_process(void *ftf, unsigned long data) {
+
+	struct trapframe *tf = ftf;
+
+	(void)data;
+
+	tf->tf_v0 = 0; // Return value PID should be 0
+	tf->tf_a3 = 0; // No errors ocurred
+
+	// Advance program counter
+	tf->tf_epc += 4;
+
+	// Similar to syscall
+
+	/* Make sure the syscall code didn't forget to lower spl */
+	KASSERT(curthread->t_curspl == 0);
+	/* ...or leak any spinlocks */
+	KASSERT(curthread->t_iplhigh_count == 0);
+
+	mips_usermode(tf);
 }

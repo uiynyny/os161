@@ -3,6 +3,7 @@
 #include <kern/unistd.h>
 #include <kern/wait.h>
 #include <lib.h>
+#include <mips/trapframe.h>
 #include <syscall.h>
 #include <current.h>
 #include <proc.h>
@@ -50,61 +51,54 @@ void sys__exit(int exitcode) {
 
 /**
 	The fork system call
-*/
-int sys_fork(pid_t *retval) {
-	(void)retval;
 
-	int i; // iterator
+	* ctf is the current trap frame
+	* retval will be the PID of the child process
+		* The child process will get a return value via `enter_forked_process`
+*/
+int sys_fork(struct trapframe *ctf, pid_t *retval) {
 
 	struct proc *curp = curproc;
-	struct proc *newp;
-	struct addrspace *newp_addrspace;
+	struct proc *newp = proc_create_runprogram(curp->p_name);
 
-	// Allocate memory for the new process
-	newp = kmalloc(sizeof(struct proc));
 	if (newp == NULL) {
-		return ENOMEM; // could not allocate, out of memory?
+		return ENPROC; // too many processes in system
 	}
 
-	// Copy over the process name
-	newp->p_name = kstrdup(curp->p_name);
-	if (newp->p_name == NULL) {
-		kfree(newp);
-		return ENOMEM; // could not allocate, out of memory?
+	// Create new address space for the new process
+	as_copy(curproc_getas(), &(newp->p_addrspace));
+
+	if (newp->p_addrspace == NULL) {
+		return ENOMEM; // could not create address space (out of memory?)
 	}
 
-	// Duplicate the address space
-	as_copy(curp->p_addrspace, &newp->p_addrspace);
+	// Duplicate the trap frame
+	struct trapframe *ntf;
 
-	// Initialize this process's spinlock
-	spinlock_init(&newp->plock);
+	// ctf is a plain-old data structure (PODS). This makes a copy
+	// Will be copied to this function's stack on the kernel
+	*ntf = *ctf;
 
-	// Add the cwd to the new process
-	newp->p_cwd = curp->p_cwd;
-	vnode_incref(newp->p_cwd); // increments references to this directory
+	// Find the differences between the address spaces
+	int vbase1diff = newp->p_addrspace->as_vbase1 - curp->p_addrspace->as_vbase1; // code
+	int vbase2diff = newp->p_addrspace->as_vbase2 - curp->p_addrspace->as_vbase2; // data
 
-	// Fork all the threads
-	int numthreads = threadarray_num(curp->p_threads);
-	for (int i = 0; i < numthreads; i++) {
-		struct thread * curp_thread = threadarray_get(&curp->p_threads, i);
-		struct thread * newp_thread;
+	ntf->tf_gp += vbase2diff; // global pointer
+	ntf->tf_sp += vbase2diff; // stack pointer
+	// ntf->tf_s8 += vbase2diff; // Frame pointer?
+	ntf->tf_epc += vbase1diff; // PC
 
-		thread_fork(const char *name, struct proc *proc,
-                void (*func)(void *, unsigned long),
-                void *data1, unsigned long data2);
-		if () {
-			threadarray_remove(&proc->p_threads, i);
-			spinlock_release(&proc->p_lock);
-			t->t_proc = NULL;
-			return;
-		}
+	// Fork the current thread into the new process, enter it where required
+	int thread_fork_err = thread_fork(curthread->t_name, newp, &enter_forked_process, ntf, 0);
+
+	if (thread_fork_err) {
+		return thread_fork_err; // err
 	}
-	// Copy the current process
-	// Make a new copy of each thread and fork each thread
-	// Copy the stack frame
 
-	// How do we select the process that will run?
+	// Return the new processes's ID
+	*retval = newp->id;
 
+	// No errors
 	return 0;
 }
 

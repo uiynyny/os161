@@ -78,6 +78,7 @@ pid_t base_pid = 0;
 	This will be used to search for processes by PID
 */
 struct array *processes;
+bool did_init_processes = false;
 
 /**
 	Returns the index of the given process in the processes array
@@ -116,6 +117,11 @@ struct proc * proc_by_pid(pid_t pid) {
 	To be called by proc_create
 */
 void add_proc_to_processes(struct proc *p) {
+	if (!did_init_processes) {
+		processes = array_create();
+		array_init(processes);
+		did_init_processes = true;
+	}
 	array_add(processes, p, NULL);
 }
 
@@ -125,6 +131,13 @@ void add_proc_to_processes(struct proc *p) {
 void remove_proc_from_processes(pid_t pid) {
 	unsigned i = proc_index_by_pid(pid);
 	array_remove(processes, i);
+
+	// Deinit the processes array
+	if (array_num(processes) == 0) {
+		array_cleanup(processes);
+		array_destroy(processes);
+		did_init_processes = false;
+	}
 }
 
 /**

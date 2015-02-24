@@ -31,8 +31,10 @@
 #include <kern/errno.h>
 #include <kern/syscall.h>
 #include <lib.h>
+#include <mips/specialreg.h>
 #include <mips/trapframe.h>
 #include <thread.h>
+#include <proc.h>
 #include <current.h>
 #include <syscall.h>
 
@@ -124,6 +126,7 @@ void syscall(struct trapframe *tf) {
 		// Process fork will happen here
 		// Set retval to the value of the PID (or whatever was forked)
 		// Returns whether there was an error
+		DEBUG(DB_SYSCALL, "sys_fork called by process with ID %d\n", curproc->id);
 		err = sys_fork(tf, (pid_t *)&retval);
 		break;
 	case SYS_getpid:
@@ -155,8 +158,7 @@ void syscall(struct trapframe *tf) {
 		 */
 		tf->tf_v0 = err;
 		tf->tf_a3 = 1;      /* signal an error */
-	}
-	else {
+	} else {
 		/* Success. */
 		tf->tf_v0 = retval;
 		tf->tf_a3 = 0;      /* signal no error */
@@ -183,17 +185,20 @@ void syscall(struct trapframe *tf) {
  *
  * Thus, you can trash it and do things another way if you prefer.
  */
-void enter_forked_process(void *ftf, unsigned long data) {
+void enter_forked_process(void *datatf, unsigned long data2) {
 
-	struct trapframe *tf = ftf;
+	// Duplicate the trap frame so that it's on this stack
+	struct trapframe *ftf = datatf; // original trap frame
+	struct trapframe tf = *ftf; // copy over the trap frame onto the kernel stack
 
-	(void)data;
+	(void)data2; // don't need this for now
 
-	tf->tf_v0 = 0; // Return value PID should be 0
-	tf->tf_a3 = 0; // No errors ocurred
+	tf.tf_v0 = 0; // Return value PID should be 0
+	tf.tf_a3 = 0; // No errors ocurred
 
 	// Advance program counter
-	tf->tf_epc += 4;
+	tf.tf_epc += 4;
+
 
 	// Similar to syscall
 
@@ -202,5 +207,5 @@ void enter_forked_process(void *ftf, unsigned long data) {
 	/* ...or leak any spinlocks */
 	KASSERT(curthread->t_iplhigh_count == 0);
 
-	mips_usermode(tf);
+	mips_usermode(&tf);
 }

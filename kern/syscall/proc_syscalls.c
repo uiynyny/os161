@@ -58,40 +58,42 @@ void sys__exit(int exitcode) {
 */
 int sys_fork(struct trapframe *ctf, pid_t *retval) {
 
+	// Create a new process from the current one
 	struct proc *curp = curproc;
 	struct proc *newp = proc_create_runprogram(curp->p_name);
-
 	if (newp == NULL) {
-		return ENPROC; // too many processes in system
+		DEBUG(DB_SYSCALL, "sys_fork error: could not create a process.\n");
+		return ENPROC; // too many processes in system?
 	}
+	DEBUG(DB_SYSCALL, "sys_fork: New process created.\n");
 
 	// Create new address space for the new process
 	as_copy(curproc_getas(), &(newp->p_addrspace));
-
 	if (newp->p_addrspace == NULL) {
+		DEBUG(DB_SYSCALL, "sys_fork error: Could not create address space for new process.\n");
+		proc_destroy(newp);
 		return ENOMEM; // could not create address space (out of memory?)
 	}
+	DEBUG(DB_SYSCALL, "sys_fork: New address space created.\n");
 
-	// Duplicate the trap frame
-	struct trapframe *ntf;
+	// Duplicate the trap frame? Using the old trap frame's [virtual] pointer...
+	// ... but how do we put it into the new address space?
+	struct trapframe *ntf = kmalloc(sizeof(struct trapframe)); // leaks memory?
+	if (ntf == NULL) {
+		DEBUG(DB_SYSCALL, "sys_fork error: Could not create trap frame for new process.\n");
+		proc_destroy(newp);
+		return ENOMEM; // could not create trap frame (out of memory?)
+	}
+	memcpy(ntf, ctf, sizeof(struct trapframe));
+	DEBUG(DB_SYSCALL, "sys_fork: New trap frame created.\n");
 
-	// ctf is a plain-old data structure (PODS). This makes a copy
-	// Will be copied to this function's stack on the kernel
-	*ntf = *ctf;
-
-	// Find the differences between the address spaces
-	int vbase1diff = newp->p_addrspace->as_vbase1 - curp->p_addrspace->as_vbase1; // code
-	int vbase2diff = newp->p_addrspace->as_vbase2 - curp->p_addrspace->as_vbase2; // data
-
-	ntf->tf_gp += vbase2diff; // global pointer
-	ntf->tf_sp += vbase2diff; // stack pointer
-	// ntf->tf_s8 += vbase2diff; // Frame pointer?
-	ntf->tf_epc += vbase1diff; // PC
-
-	// Fork the current thread into the new process, enter it where required
+	// Fork the current thread into the new process and enter it
+	// The current trap frame should have the same virtual address...?
 	int thread_fork_err = thread_fork(curthread->t_name, newp, &enter_forked_process, ntf, 0);
-
 	if (thread_fork_err) {
+		proc_destroy(newp); // removes address space as well
+		kfree(ntf);
+		ntf = NULL;
 		return thread_fork_err; // err
 	}
 

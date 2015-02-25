@@ -126,7 +126,7 @@ void syscall(struct trapframe *tf) {
 		// Process fork will happen here
 		// Set retval to the value of the PID (or whatever was forked)
 		// Returns whether there was an error
-		DEBUG(DB_SYSCALL, "sys_fork called by process with ID %d\n", curproc->id);
+		DEBUG(DB_SYSCALL, "sys_fork called by process with ID %d\n", curproc->p_id);
 		err = sys_fork(tf, (pid_t *)&retval);
 		break;
 	case SYS_getpid:
@@ -199,13 +199,14 @@ void enter_forked_process(void *datatf, unsigned long data2) {
 	// Advance program counter
 	tf.tf_epc += 4;
 
+	kfree(ftf); // no longer needed
 
-	// Similar to syscall
-
+	// The next couple of lines are ported from syscall
 	/* Make sure the syscall code didn't forget to lower spl */
 	KASSERT(curthread->t_curspl == 0);
 	/* ...or leak any spinlocks */
 	KASSERT(curthread->t_iplhigh_count == 0);
 
+	// Go back into user mode!
 	mips_usermode(&tf);
 }

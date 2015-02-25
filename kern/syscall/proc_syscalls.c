@@ -18,6 +18,9 @@ void sys__exit(int exitcode) {
 
 	struct addrspace *as;
 	struct proc *p = curproc;
+
+	// Signal all the child processes that it is now OKAY to kill themselves
+
 	/* for now, just include this to keep the compiler from complaining about
 		 an unused variable */
 	(void)exitcode;
@@ -39,6 +42,13 @@ void sys__exit(int exitcode) {
 	/* detach this thread from its process */
 	/* note: curproc cannot be used after this call */
 	proc_remthread(curthread);
+
+	// Signal parent processes that we're finished!
+	//TODO
+
+	// Okay, at this point, we need to wait for the parent process to exit
+	// before fully destroying ourselves. This way, the parent process can call
+	// waitpid on its children at any time.
 
 	/* if this is the last user process in the system, proc_destroy()
 		 will wake up the kernel menu thread */
@@ -91,14 +101,16 @@ int sys_fork(struct trapframe *ctf, pid_t *retval) {
 	// The current trap frame should have the same virtual address...?
 	int thread_fork_err = thread_fork(curthread->t_name, newp, &enter_forked_process, ntf, 0);
 	if (thread_fork_err) {
+		DEBUG(DB_SYSCALL, "sys_fork error: Could not fork curren thread.\n");
 		proc_destroy(newp); // removes address space as well
 		kfree(ntf);
 		ntf = NULL;
 		return thread_fork_err; // err
 	}
+	DEBUG(DB_SYSCALL, "sys_fork: Current thread forked successfully.\n");
 
 	// Return the new processes's ID
-	*retval = newp->id;
+	*retval = newp->p_id;
 
 	// No errors
 	return 0;

@@ -70,30 +70,27 @@ static struct semaphore *proc_count_mutex;
 struct semaphore *no_proc_sem;
 #endif  // UW
 
+// The complete array of all active processes
+// Processes are active if they have not exited or if their parent has not existed
+struct array *allprocs;
+
 // PIDs will be > 0
 pid_t base_pid = 0;
-
-/**
-	Array of processes ordered by process number
-	This will be used to search for processes by PID
-*/
-struct array *processes;
-bool did_init_processes = false;
 
 /**
 	Returns the index of the given process in the processes array
 	Binary search implementation
 */
-int proc_index_by_pid(pid_t pid) {
+unsigned procarray_proc_index_by_pid(struct array *procs, pid_t pid) {
 	unsigned low = 0;
-	unsigned high = array_num(processes) - 1;
+	unsigned high = array_num(procs) - 1;
 
 	while (high >= low) {
 		unsigned probe = (high + low) / 2;
-		struct proc * p = array_get(processes, probe);
-		if (pid == p->id) {
+		struct proc * p = array_get(procs, probe);
+		if (pid == p->p_id) {
 			return probe;
-		} else if (pid < p->id) {
+		} else if (pid < p->p_id) {
 			high = probe - 1;
 		} else {
 			low = probe + 1;
@@ -108,35 +105,41 @@ int proc_index_by_pid(pid_t pid) {
 	proc_by_pid returns the process for a given PID by performing a binary
 	search on the processes array.
 */
-struct proc * proc_by_pid(pid_t pid) {
-	return array_get(processes, proc_index_by_pid(pid));
+struct proc * procarray_proc_by_pid(struct array *procs, pid_t pid) {
+	return array_get(procs, procarray_proc_index_by_pid(procs, pid));
 }
 
 /**
 	Adds a newly created process to the end of the processes array
 	To be called by proc_create
 */
-void add_proc_to_processes(struct proc *p) {
-	if (!did_init_processes) {
-		processes = array_create();
-		array_init(processes);
-		did_init_processes = true;
+void procarray_add_proc(struct array *procs, struct proc *p) {
+	array_add(procs, p, NULL);
+}
+
+void procarray_allprocs_add_proc(struct proc *p) {
+	if (allprocs == NULL) {
+		allprocs = array_create();
+		array_init(allprocs);
 	}
-	array_add(processes, p, NULL);
+	procarray_add_proc(allprocs, p);
 }
 
 /**
 	To be called by proc_destroy
 */
-void remove_proc_from_processes(pid_t pid) {
-	unsigned i = proc_index_by_pid(pid);
-	array_remove(processes, i);
+void procarray_remove_proc(struct array *procs, pid_t pid) {
+	array_remove(procs, procarray_proc_index_by_pid(procs, pid));
+}
+
+void procarray_allprocs_remove_proc(pid_t pid) {
+	procarray_remove_proc(allprocs, pid);
 
 	// Deinit the processes array
-	if (array_num(processes) == 0) {
-		array_cleanup(processes);
-		array_destroy(processes);
-		did_init_processes = false;
+	if (array_num(allprocs) == 0) {
+		array_cleanup(allprocs);
+		array_destroy(allprocs);
+		allprocs = NULL;
 	}
 }
 
@@ -175,13 +178,43 @@ static struct proc * proc_create(const char *name) {
 
 #ifdef UW
 	proc->console = NULL;
+#endif // UW
 
 	// Added for A2
-	// Generate a process ID and add it to the processes array
-	proc->id = gen_pid();
-	add_proc_to_processes(proc);
 
-#endif // UW
+	// Generate a process ID and add it to the processes array
+	proc->p_id = gen_pid();
+	proc->p_did_exit = false;
+	proc->p_exitcode = 0;
+
+	proc->p_exit_lk = lock_create("p_exit_lk");
+	if (proc->p_exit_lk == NULL) {
+		kfree(proc->p_name);
+		kfree(proc);
+		return NULL;
+	}
+	proc->p_wait_lk = lock_create("p_wait_lk");
+	if (proc->p_exit_lk == NULL) {
+		lock_destroy(proc->p_exit_lk);
+		kfree(proc->p_name);
+		kfree(proc);
+		return NULL;
+	}
+
+	proc->p_wait_cv = cv_create("p_wait_cv");
+	if (proc->p_exit_lk == NULL) {
+		lock_destroy(proc->p_wait_lk);
+		lock_destroy(proc->p_exit_lk);
+		kfree(proc->p_name);
+		kfree(proc);
+		return NULL;
+	}
+
+	proc->p_children = *array_create();
+	array_init(&proc->p_children); // initialize the children
+
+	// Process created successfully, add it to the array of all processes
+	procarray_allprocs_add_proc(proc);
 
 	return proc;
 }
@@ -202,6 +235,9 @@ void proc_destroy(struct proc *proc) {
 	KASSERT(proc != NULL);
 	KASSERT(proc != kproc);
 
+	// Remove the process from the global process array.
+	procarray_allprocs_remove_proc(proc->p_id);
+
 	/*
 	 * We don't take p_lock in here because we must have the only
 	 * reference to this structure. (Otherwise it would be
@@ -216,9 +252,6 @@ void proc_destroy(struct proc *proc) {
 
 
 #ifndef UW  // in the UW version, space destruction occurs in sys_exit, not here
-
-	// Added for A2
-	remove_proc_from_processes(proc->id);
 
 	if (proc->p_addrspace) {
 		/*
@@ -248,6 +281,12 @@ void proc_destroy(struct proc *proc) {
 	threadarray_cleanup(&proc->p_threads);
 	spinlock_cleanup(&proc->p_lock);
 
+	// Added for A2
+	array_cleanup(&proc->p_children);
+	lock_destroy(proc->p_exit_lk);
+	lock_destroy(proc->p_wait_lk);
+	cv_destroy(proc->p_wait_cv);
+
 	kfree(proc->p_name);
 	kfree(proc);
 
@@ -273,6 +312,7 @@ void proc_destroy(struct proc *proc) {
  * Create the process structure for the kernel.
  */
 void proc_bootstrap(void) {
+
 	kproc = proc_create("[kernel]");
 	if (kproc == NULL) {
 		panic("proc_create for kproc failed\n");

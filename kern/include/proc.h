@@ -37,6 +37,7 @@
  */
 
 #include <types.h>
+#include <array.h>
 #include <spinlock.h>
 #include <thread.h> /* required for struct threadarray */
 
@@ -46,29 +47,24 @@ struct vnode;
 struct semaphore;
 #endif // UW
 
-/**
-	PID helpers
-*/
-/**
-	Returns the process for the given process ID
-*/
-int proc_index_by_pid(pid_t pid); // returns index for process (or -1 if fail)
-struct proc * proc_by_pid(pid_t pid); // returns actual process
+struct proc;
 
-/**
-	Add a process to the complete list of processes.
-	At this point it can be looked up with proc_by_pid
-*/
-void add_proc_to_processes(struct proc *p);
+/*
+	Array of processes.
+	NOTE: This is stupid and doesn't work
+	I tried this and kept getting weird errors that look like this
 
-/**
-	Remove a process from the complete list of processes
-	This should only be called by proc_destroy
-*/
-void remove_proc_from_processes(pid_t pid);
+		../../proc/proc.c:(.text+0x20): undefined reference to `procarray_num'
+		../../proc/proc.c:(.text+0x20): relocation truncated to fit: R_MIPS_26 against `procarray_num'
 
-// Generates a unique process ID
-pid_t gen_pid(void);
+	What to do about this?
+*/
+// #ifndef PROCINLINE
+// #define PROCINLINE INLINE
+// #endif
+
+// DECLARRAY(proc);
+// DEFARRAY(proc, PROCINLINE);
 
 /*
  * Process structure.
@@ -90,13 +86,20 @@ struct proc {
 	/* you will probably need to change this when implementing file-related
 	 system calls, since each process will need to keep track of all files
 	 it has opened, not just the console. */
-	struct vnode *console;                /* a vnode for the console device */
-
-	pid_t id;						/* process ID */
+	struct vnode *console;			/* a vnode for the console device */
 
 #endif
 
-	/* add more material here as needed */
+ 	pid_t p_id;						/* process ID */
+	struct array p_children;/* Child processes for this process */
+
+	bool p_did_exit;				/* Did the thread exit yet? */
+	int p_exitcode;					/* Exit code for this process */
+
+	struct lock *p_exit_lk;			/* Grabbing this lock prevents this thread from exiting */
+	struct lock *p_wait_lk;			/* Use with p_wait_cv to check when lock exists */
+	struct cv *p_wait_cv;			/* Conditional variable for checking whether we've existed */
+
 };
 
 /* This is the process structure for the kernel and for kernel-only threads. */
@@ -128,5 +131,33 @@ struct addrspace *curproc_getas(void);
 /* Change the address space of the current process, and return the old one. */
 struct addrspace *curproc_setas(struct addrspace *);
 
+// PID and processes helpers
+
+/**
+	A list of processes is a dynamic array ordered by PID
+*/
+
+/**
+	Returns the process for the given process ID
+*/
+unsigned procarray_proc_index_by_pid(struct array *procs, pid_t pid); // returns index for process (or -1 if fail)
+struct proc * procarray_proc_by_pid(struct array *procs, pid_t pid); // returns actual process
+
+/**
+	Add a process to the complete list of processes.
+	At this point it can be looked up with proc_by_pid
+*/
+void procarray_add_proc(struct array *procs, struct proc *p);
+void procarray_allprocs_add_proc(struct proc *p);
+
+/**
+	Remove a process from the complete list of processes
+	This should only be called by proc_destroy
+*/
+void procarray_remove_proc(struct array *procs, pid_t pid);
+void procarray_allprocs_remove_proc(pid_t pid);
+
+// Generates a unique process ID
+pid_t gen_pid(void);
 
 #endif /* _PROC_H_ */

@@ -69,10 +69,7 @@ static const char *const trapcodenames[NTRAPCODES] = {
 /*
  * Function called when user-level code hits a fatal fault.
  */
-static
-void
-kill_curthread(vaddr_t epc, unsigned code, vaddr_t vaddr)
-{
+static void kill_curthread(vaddr_t epc, unsigned code, vaddr_t vaddr) {
 	int sig = 0;
 
 	KASSERT(code < NTRAPCODES);
@@ -122,15 +119,13 @@ kill_curthread(vaddr_t epc, unsigned code, vaddr_t vaddr)
  * This is called by the assembly-language exception handler once
  * the trapframe has been set up.
  */
-void
-mips_trap(struct trapframe *tf)
-{
+void mips_trap(struct trapframe *tf) {
 	uint32_t code;
 	bool isutlb, iskern;
 	int spl;
 
 	/* The trap frame is supposed to be 37 registers long. */
-	KASSERT(sizeof(struct trapframe)==(37*4));
+	KASSERT(sizeof(struct trapframe) == (37*4));
 
 	/*
 	 * Extract the exception code info from the register fields.
@@ -144,8 +139,7 @@ mips_trap(struct trapframe *tf)
 	/* Make sure we haven't run off our stack */
 	if (curthread != NULL && curthread->t_stack != NULL) {
 		KASSERT((vaddr_t)tf > (vaddr_t)curthread->t_stack);
-		KASSERT((vaddr_t)tf < (vaddr_t)(curthread->t_stack
-						+ STACK_SIZE));
+		KASSERT((vaddr_t)tf < (vaddr_t)(curthread->t_stack + STACK_SIZE));
 	}
 
 	/* Interrupt? Call the interrupt handler and return. */
@@ -179,8 +173,7 @@ mips_trap(struct trapframe *tf)
 			curthread->t_curspl = IPL_HIGH;
 			curthread->t_iplhigh_count++;
 			doadjust = true;
-		}
-		else {
+		} else {
 			doadjust = false;
 		}
 
@@ -217,8 +210,10 @@ mips_trap(struct trapframe *tf)
 		KASSERT(curthread->t_curspl == 0);
 		KASSERT(curthread->t_iplhigh_count == 0);
 
-		DEBUG(DB_SYSCALL, "syscall: #%d, args %x %x %x %x\n",
-		      tf->tf_v0, tf->tf_a0, tf->tf_a1, tf->tf_a2, tf->tf_a3);
+		DEBUG(
+			DB_SYSCALL, "syscall: #%d, args %x %x %x %x\n",
+			tf->tf_v0, tf->tf_a0, tf->tf_a1, tf->tf_a2, tf->tf_a3
+		);
 
 		syscall(tf);
 		goto done;
@@ -363,9 +358,7 @@ mips_trap(struct trapframe *tf)
  *    - enter_new_process, for use by exec and equivalent.
  *    - enter_forked_process, in syscall.c, for use by fork.
  */
-void
-mips_usermode(struct trapframe *tf)
-{
+void mips_usermode(struct trapframe *tf) {
 
 	/*
 	 * Interrupts should be off within the kernel while entering
@@ -414,9 +407,7 @@ mips_usermode(struct trapframe *tf)
  *
  * Works by creating an ersatz trapframe.
  */
-void
-enter_new_process(int argc, userptr_t argv, vaddr_t stack, vaddr_t entry)
-{
+void enter_new_process(int argc, userptr_t argv, vaddr_t stack, vaddr_t entry) {
 	struct trapframe tf;
 
 	bzero(&tf, sizeof(tf));

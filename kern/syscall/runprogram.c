@@ -51,9 +51,7 @@
  *
  * Calls vfs_open on progname and thus may destroy it.
  */
-int
-runprogram(char *progname)
-{
+int runprogram(char *progname) {
 	struct addrspace *as;
 	struct vnode *v;
 	vaddr_t entrypoint, stackptr;
@@ -70,7 +68,7 @@ runprogram(char *progname)
 
 	/* Create a new address space. */
 	as = as_create();
-	if (as ==NULL) {
+	if (as == NULL) {
 		vfs_close(v);
 		return ENOMEM;
 	}
@@ -98,11 +96,11 @@ runprogram(char *progname)
 	}
 
 	/* Warp to user mode. */
-	enter_new_process(0 /*argc*/, NULL /*userspace addr of argv*/,
-			  stackptr, entrypoint);
+	enter_new_process(
+		0 /*argc*/, NULL /*userspace addr of argv*/, stackptr, entrypoint
+	);
 
 	/* enter_new_process does not return. */
 	panic("enter_new_process returned\n");
 	return EINVAL;
 }
-

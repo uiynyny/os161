@@ -55,7 +55,7 @@ void sys__exit(int exitcode) {
 	proc_remthread(curthread);
 
 	p->p_did_exit = true;
-	p->p_exitcode = exitcode;
+	p->p_exitcode = _MKWAIT_EXIT(exitcode);
 
 	// Let anyone waiting for this thread know that it has exited
 	cv_broadcast(p->p_wait_cv, p->p_wait_lk);

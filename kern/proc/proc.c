@@ -149,6 +149,15 @@ void procarray_allprocs_remove_proc(pid_t pid) {
 
 /**
 	Generates a unique PID for a process.
+
+	TODO: I didn't have time to get to this by refactor this to allow
+	(potentially) unlimited different processes to run by allowing recycling of
+	process IDs that have exited and been fully removed.
+
+	We would have to generate the PID by finding the largest array index `i` in
+	allprocesses whose process ID is <= i (specified binary search) then insert
+	into the allprocesses array when we create the new process in that order (to
+	maintion ordering by PID).
 */
 pid_t gen_pid() {
 	return ++base_pid;

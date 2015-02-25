@@ -28,7 +28,7 @@ void sys__exit(int exitcode) {
 	// Signal all the child processes that it is now OKAY to kill themselves
 	for (unsigned int i = array_num(&p->p_children); i > 0 ; i--) {
 
-		// This allows children to exit
+		// This allows children to destroy themselves
 		struct proc *cproc = array_get(&p->p_children, i - 1);
 		lock_release(cproc->p_exit_lk);
 
@@ -149,27 +149,41 @@ int sys_getpid(pid_t *retval) {
 /* stub handler for waitpid() system call                */
 
 int sys_waitpid(pid_t pid, userptr_t status, int options, pid_t *retval) {
+
 	int exitstatus;
 	int result;
 
-	/* this is just a stub implementation that always reports an
-		 exit status of 0, regardless of the actual exit status of
-		 the specified process.
-		 In fact, this will return 0 even if the specified process
-		 is still running, and even if it never existed in the first place.
+	// Get the process for the given PID
+	struct proc * p = procarray_allprocs_proc_by_pid(pid);
 
-		 Fix this!
-	*/
+	if (p == NULL) {
+		// Requested PID does not exist
+		return ESRCH;
+	}
+
+	if (p == curproc) {
+		// Current process can't wait on itself
+		return ECHILD;
+	}
 
 	if (options != 0) {
-		return(EINVAL);
+		return EINVAL;
 	}
-	/* for now, just pretend the exitstatus is 0 */
-	exitstatus = 0;
-	result = copyout((void *)&exitstatus,status,sizeof(int));
+
+	// Wait for the thread to exit before returning.
+	lock_acquire(p->p_wait_lk);
+		while (!p->p_did_exit) {
+			cv_wait(p->p_wait_cv, p->p_wait_lk);
+		}
+	lock_release(p->p_wait_lk);
+
+	exitstatus = p->p_exitcode;
+	result = copyout((void *)&exitstatus, status, sizeof(int));
+
 	if (result) {
-		return(result);
+		return result;
 	}
+
 	*retval = pid;
-	return(0);
+	return 0;
 }

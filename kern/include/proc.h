@@ -142,6 +142,7 @@ struct addrspace *curproc_setas(struct addrspace *);
 */
 unsigned procarray_proc_index_by_pid(struct array *procs, pid_t pid); // returns index for process (or -1 if fail)
 struct proc * procarray_proc_by_pid(struct array *procs, pid_t pid); // returns actual process
+struct proc * procarray_allprocs_proc_by_pid(pid_t pid);
 
 /**
 	Add a process to the complete list of processes.

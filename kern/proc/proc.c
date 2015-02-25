@@ -109,6 +109,10 @@ struct proc * procarray_proc_by_pid(struct array *procs, pid_t pid) {
 	return array_get(procs, procarray_proc_index_by_pid(procs, pid));
 }
 
+struct proc * procarray_allprocs_proc_by_pid(pid_t pid) {
+	return procarray_proc_by_pid(allprocs, pid);
+}
+
 /**
 	Adds a newly created process to the end of the processes array
 	To be called by proc_create

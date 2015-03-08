@@ -50,6 +50,9 @@
  * Does not return except on error.
  *
  * Calls vfs_open on progname and thus may destroy it.
+ *
+ * The second `oldas` param referes to the processes's previous address space
+ * which is no longer required (e.g., if the process just called execv).
  */
 int runprogram(char *progname) {
 	struct addrspace *as;
@@ -64,7 +67,7 @@ int runprogram(char *progname) {
 	}
 
 	/* We should be a new process. */
-	KASSERT(curproc_getas() == NULL);
+	// KASSERT(curproc_getas() == NULL);
 
 	/* Create a new address space. */
 	as = as_create();
@@ -73,8 +76,16 @@ int runprogram(char *progname) {
 		return ENOMEM;
 	}
 
-	/* Switch to it and activate it. */
-	curproc_setas(as);
+	/* Deactiveate the current address space, if exists */
+	if (curproc_getas() != NULL) {
+		as_deactivate();
+	}
+
+	/* Switch to it and activate it (clean up old one). */
+	struct addrspace * oldas = curproc_setas(as);
+	if (oldas != NULL) {
+		as_destroy(oldas);
+	}
 	as_activate();
 
 	/* Load the executable. */

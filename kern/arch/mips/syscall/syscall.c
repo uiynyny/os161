@@ -139,6 +139,9 @@ void syscall(struct trapframe *tf) {
 			(pid_t *)&retval
 		);
 		break;
+	case SYS_execv:
+		err = sys_execv((char *)tf->tf_a0/*, (char **)tf->tf_a1*/, &retval);
+		break;
 #endif // UW
 
 	    /* Add stuff here */

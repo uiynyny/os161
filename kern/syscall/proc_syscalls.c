@@ -12,6 +12,7 @@
 #include <copyinout.h>
 #include <synch.h>
 #include <array.h>
+#include <test.h>
 
 /* this implementation of sys__exit does not do anything with the exit code */
 /* this needs to be fixed to get exit() and waitpid() working properly */
@@ -186,4 +187,14 @@ int sys_waitpid(pid_t pid, userptr_t status, int options, pid_t *retval) {
 
 	*retval = pid;
 	return 0;
+}
+
+/**
+	execv implementation
+*/
+int sys_execv(char *program/*, char **args*/, int32_t *retval) {
+	int err = runprogram(program/*, args*/);
+	// Should not return, this implies an error
+	*retval = err;
+	return 1;
 }

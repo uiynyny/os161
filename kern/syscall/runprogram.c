@@ -44,6 +44,23 @@
 #include <vfs.h>
 #include <syscall.h>
 #include <test.h>
+#include <copyinout.h>
+#include <limits.h>
+
+/**
+	How much memory is required for `count` items of the given
+	typesize, keeping alignment in mind?
+
+	Assumes `typesize` is <= the size of a virtual address
+*/
+int aligned_bytes_required_for(int count, size_t typesize) {
+	size_t addrsize = sizeof(userptr_t);
+	return (typesize * count) + (
+		addrsize - (
+			addrsize % typesize
+		)
+	) % addrsize;
+}
 
 /*
  * Load program "progname" and start running it in usermode.
@@ -53,8 +70,12 @@
  *
  * The second `oldas` param referes to the processes's previous address space
  * which is no longer required (e.g., if the process just called execv).
+ *
+ * Params
+ * - progname
+ * - args - Array of arguments for the program
  */
-int runprogram(char *progname) {
+int runprogram(char *progname, char **args) {
 	struct addrspace *as;
 	struct vnode *v;
 	vaddr_t entrypoint, stackptr;
@@ -106,10 +127,82 @@ int runprogram(char *progname) {
 		return result;
 	}
 
+	// newargs, in case args isn't defined
+	char *newargs[1];
+	newargs[0] = NULL;
+	if (args == NULL) {
+		args = newargs;
+	}
+
+	// argument count including program name (always at least 1 arg)
+	int argc = 0;
+
+	// calculate total combined length of arguments, including \0 terminators
+	int prognamelen = strlen(progname) + 1;
+	int totalargslen = prognamelen; // +1 for \0
+
+	while (args[argc] != NULL) {
+		int arglen = strlen(args[argc]);
+		totalargslen += arglen + 1; // +1 for \0
+		argc++;
+	}
+
+	argc += 1; // Program name is first argument
+
+	if (totalargslen > ARG_MAX) {
+		return E2BIG;
+	}
+
+	// Allocate stack space for the params
+	// +1 for NULL-terminated array
+
+	// Bytes required for argv, accounting for alignment
+	int argvmem = aligned_bytes_required_for(argc + 1, sizeof(char **));
+	int argvvalmem = aligned_bytes_required_for(totalargslen, sizeof(char));
+
+	// Total memory required for all arguments
+	int totalmem = argvmem + argvvalmem;
+
+	// Allocate memory on the stack for the new params
+	stackptr -= totalmem / sizeof(userptr_t);
+
+	// Address of argument values on the user stack
+	char *argv[argc + 1];
+	userptr_t uargv = (userptr_t)stackptr;
+	userptr_t uargvval = (userptr_t)(stackptr + (argvvalmem / sizeof(userptr_t)));
+
+	size_t got;
+	result = copyoutstr(progname, uargvval, prognamelen, &got);
+	if (result) {
+		// Address space copy error
+		return result;
+	}
+	argv[0] = (char *)uargvval;
+
+	int argvvaloffset = got;
+
+	for (int j = 0; j < argc - 1; j++) {
+		char * arg = args[j];
+		userptr_t dest = (userptr_t)((char *)uargvval + argvvaloffset);
+		result = copyoutstr(arg, dest, strlen(arg), &got);
+		if (result) {
+			// Address space copy error
+			return result;
+		}
+		argv[j + 1] = (char *)dest;
+		argvvaloffset += got;
+	}
+
+	argv[argc] = NULL;
+	result = copyout(argv, uargv, (argc + 1) * sizeof(char *));
+	if (result) {
+		// Address space copy error
+		return result;
+	}
+
+
 	/* Warp to user mode. */
-	enter_new_process(
-		0 /*argc*/, NULL /*userspace addr of argv*/, stackptr, entrypoint
-	);
+	enter_new_process(argc, uargv, stackptr, entrypoint);
 
 	/* enter_new_process does not return. */
 	panic("enter_new_process returned\n");

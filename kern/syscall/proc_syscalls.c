@@ -12,7 +12,11 @@
 #include <copyinout.h>
 #include <synch.h>
 #include <array.h>
+#include <limits.h>
 #include <test.h>
+
+// Maximum length of a single execv argument (1024 in this case)
+#define EXECV_MAX_ARG_SIZE PATH_MAX
 
 /* this implementation of sys__exit does not do anything with the exit code */
 /* this needs to be fixed to get exit() and waitpid() working properly */
@@ -192,8 +196,57 @@ int sys_waitpid(pid_t pid, userptr_t status, int options, pid_t *retval) {
 /**
 	execv implementation
 */
-int sys_execv(char *program/*, char **args*/, int32_t *retval) {
-	int err = runprogram(program/*, args*/);
+int sys_execv(const_userptr_t program, const_userptr_t args[], int32_t *retval) {
+
+	// Copy the arguments into the address space
+	int argc = 0;
+
+	// Figure out how many arguments there are
+	while (args[argc] != NULL) argc++;
+	if (argc + 1 > ARG_MAX / EXECV_MAX_ARG_SIZE) {
+		// Too many
+		*retval = E2BIG;
+		return 1;
+	}
+
+	// Copy user arguments into kernel address space
+	// +1 to account for null at the end
+	char *kargs[argc + 1];
+	char kprogram[EXECV_MAX_ARG_SIZE];
+	int copyresult;
+	size_t totalargslen = 0;
+
+	// Copy program name into `kprogram`
+	copyresult = copyinstr(program, kprogram, EXECV_MAX_ARG_SIZE, &totalargslen);
+	if (copyresult) {
+		// Copy error
+		*retval = copyresult;
+		return 1;
+	}
+
+	for (int i = 0; i < argc; i++) {
+		size_t arglen;
+		char karg[EXECV_MAX_ARG_SIZE];
+		copyresult = copyinstr(args[i], karg, EXECV_MAX_ARG_SIZE, &arglen);
+		if (copyresult) {
+			// Copy error
+			*retval = copyresult;
+			return 1;
+		}
+		kargs[i] = karg;
+		totalargslen += arglen;
+	}
+
+	if (totalargslen > ARG_MAX) {
+		// Total length of arguments is too large
+		*retval = E2BIG;
+		return 1;
+	}
+
+	kargs[argc + 1] = NULL; // empty string
+
+	int err = runprogram(kprogram, kargs);
+
 	// Should not return, this implies an error
 	*retval = err;
 	return 1;

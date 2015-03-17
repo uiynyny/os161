@@ -62,7 +62,12 @@ void sys__exit(int exitcode);
 int sys_fork(struct trapframe *ctf, pid_t *retval);
 int sys_getpid(pid_t *retval);
 int sys_waitpid(pid_t pid, userptr_t status, int options, pid_t *retval);
-int sys_execv(char *program/*, char **args*/, int *retval);
+
+/**
+	`args` should be an array of consecutive strings pointers in user space.
+	The strings each pointer points to are also stored in user space
+*/
+int sys_execv(const_userptr_t program, const_userptr_t args[], int *retval);
 
 #endif // UW
 

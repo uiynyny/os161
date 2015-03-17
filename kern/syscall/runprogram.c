@@ -78,7 +78,7 @@ int aligned_bytes_required_for(int count, size_t typesize) {
 int runprogram(char *progname, char **args) {
 	struct addrspace *as;
 	struct vnode *v;
-	vaddr_t entrypoint, stackptr;
+	vaddr_t entrypoint, stackptr; // these are just integers
 	int result;
 
 	/* Open the file. */
@@ -164,12 +164,12 @@ int runprogram(char *progname, char **args) {
 	int totalmem = argvmem + argvvalmem;
 
 	// Allocate memory on the stack for the new params
-	stackptr -= totalmem / sizeof(userptr_t);
+	stackptr -= totalmem;
 
 	// Address of argument values on the user stack
 	char *argv[argc + 1];
 	userptr_t uargv = (userptr_t)stackptr;
-	userptr_t uargvval = (userptr_t)(stackptr + (argvvalmem / sizeof(userptr_t)));
+	userptr_t uargvval = (userptr_t)(stackptr + argvmem);
 
 	size_t got;
 	result = copyoutstr(progname, uargvval, prognamelen, &got);

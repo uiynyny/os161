@@ -55,11 +55,9 @@
 */
 int aligned_bytes_required_for(int count, size_t typesize) {
 	size_t addrsize = sizeof(userptr_t);
-	return (typesize * count) + (
-		addrsize - (
-			addrsize % typesize
-		)
-	) % addrsize;
+	int bytes = (typesize * count);
+	bytes += bytes % addrsize == 0 ? 0 : addrsize - (bytes % addrsize);
+	return bytes;
 }
 
 /*
@@ -138,8 +136,8 @@ int runprogram(char *progname, char **args) {
 	int argc = 0;
 
 	// calculate total combined length of arguments, including \0 terminators
-	int prognamelen = strlen(progname) + 1;
-	int totalargslen = prognamelen; // +1 for \0
+	int prognamelen = strlen(progname) + 1; // +1 for \0
+	int totalargslen = prognamelen;
 
 	while (args[argc] != NULL) {
 		int arglen = strlen(args[argc]);
@@ -184,7 +182,7 @@ int runprogram(char *progname, char **args) {
 	for (int j = 0; j < argc - 1; j++) {
 		char * arg = args[j];
 		userptr_t dest = (userptr_t)((char *)uargvval + argvvaloffset);
-		result = copyoutstr(arg, dest, strlen(arg), &got);
+		result = copyoutstr(arg, dest, strlen(arg) + 1, &got);
 		if (result) {
 			// Address space copy error
 			return result;

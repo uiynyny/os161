@@ -84,7 +84,7 @@ int nettest(int, char **);
 int aligned_bytes_required_for(int count, size_t typesize);
 
 /* Routine for running a user-level program. */
-int runprogram(char *progname, char **args);
+int runprogram(char *progname, char **args, unsigned long argc);
 
 /* Kernel menu system. */
 void menu(char *argstr);

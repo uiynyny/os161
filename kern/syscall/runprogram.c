@@ -73,7 +73,7 @@ int aligned_bytes_required_for(int count, size_t typesize) {
  * - progname
  * - args - Array of arguments for the program
  */
-int runprogram(char *progname, char **args) {
+int runprogram(char *progname, char **args, unsigned long argc) {
 
 	struct addrspace *as;
 	struct vnode *v;
@@ -133,20 +133,13 @@ int runprogram(char *progname, char **args) {
 		args = newargs;
 	}
 
-	// argument count including program name (always at least 1 arg)
-	int argc = 0;
-
 	// calculate total combined length of arguments, including \0 terminators
-	int prognamelen = strlen(progname) + 1; // +1 for \0
-	int totalargslen = prognamelen;
+	int totalargslen = 0;
 
-	while (args[argc] != NULL) {
-		int arglen = strlen(args[argc]);
+	for (unsigned long i = 0; i < argc; i++) {
+		int arglen = strlen(args[i]);
 		totalargslen += arglen + 1; // +1 for \0
-		argc++;
 	}
-
-	argc += 1; // Program name is first argument
 
 	if (totalargslen > ARG_MAX) {
 		return E2BIG;
@@ -166,21 +159,14 @@ int runprogram(char *progname, char **args) {
 	stackptr -= totalmem;
 
 	// Address of argument values on the user stack
-	char *argv[argc + 1];
+	char *argv[argc + 1]; // + 1 for NULL at the end
 	userptr_t uargv = (userptr_t)stackptr;
 	userptr_t uargvval = (userptr_t)(stackptr + argvmem);
 
 	size_t got;
-	result = copyoutstr(progname, uargvval, prognamelen, &got);
-	if (result) {
-		// Address space copy error
-		return result;
-	}
-	argv[0] = (char *)uargvval;
+	int argvvaloffset = 0;
 
-	int argvvaloffset = got;
-
-	for (int j = 0; j < argc - 1; j++) {
+	for (unsigned long j = 0; j < argc; j++) {
 		char * arg = args[j];
 		userptr_t dest = (userptr_t)((char *)uargvval + argvvaloffset);
 		result = copyoutstr(arg, dest, strlen(arg) + 1, &got);
@@ -188,7 +174,7 @@ int runprogram(char *progname, char **args) {
 			// Address space copy error
 			return result;
 		}
-		argv[j + 1] = (char *)dest;
+		argv[j] = (char *)dest;
 		argvvaloffset += got;
 	}
 

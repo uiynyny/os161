@@ -198,31 +198,37 @@ int sys_waitpid(pid_t pid, userptr_t status, int options, pid_t *retval) {
 */
 int sys_execv(const_userptr_t program, const_userptr_t args[], int32_t *retval) {
 
-	// Copy the arguments into the address space
-	int argc = 0;
-
 	DEBUG(DB_SYSCALL, "sys_execv: Entering execv syscall\n");
 
+	int argc = 0;
+
+	size_t programlen = strlen((char *)program) + 1; // + 1 for '\0'
+	size_t totalargslen = 0;
+
 	// Figure out how many arguments there are
-	while (args[argc] != NULL) argc++;
-	if (argc + 1 > ARG_MAX / EXECV_MAX_ARG_SIZE) {
-		// Too many
-		DEBUG(DB_SYSCALL, "sys_execv: Too many execv arguments (%d)\n", argc);
+	while (args[argc] != NULL) {
+		totalargslen += strlen(((char **)args)[argc]) + 1; // + 1 for '\0'
+		argc++;
+	}
+
+	if (programlen + totalargslen > ARG_MAX || argc > ARG_MAX / EXECV_MAX_ARG_SIZE) {
+		// Args too big
+		DEBUG(DB_SYSCALL, "sys_execv: Too many execv arguments ");
+		DEBUG(DB_SYSCALL, "(%d arguments with a total length of %d)\n", argc, totalargslen);
 		*retval = E2BIG;
 		return 1;
 	}
 
 	DEBUG(DB_SYSCALL, "sys_execv: Calling %s with %d arguments\n", (char *)program, argc);
 
-	// Copy user arguments into kernel address space
-	// +1 to account for null at the end
-	char *kargs[argc + 1];
-	char kprogram[EXECV_MAX_ARG_SIZE];
+	char kprogram[programlen];
+	char kargsraw[totalargslen]; // string containing all args
+	char *kargs[argc + 1]; // +1 to account for NULL at the end
 	int copyresult;
-	size_t totalargslen = 0;
+	int copiedsofar = 0; // number of characters copied so far
 
 	// Copy program name into `kprogram`
-	copyresult = copyinstr(program, kprogram, EXECV_MAX_ARG_SIZE, &totalargslen);
+	copyresult = copyinstr(program, kprogram, programlen, NULL);
 	if (copyresult) {
 		// Copy error
 		DEBUG(DB_SYSCALL, "sys_execv: Program name copy error\n");
@@ -232,34 +238,23 @@ int sys_execv(const_userptr_t program, const_userptr_t args[], int32_t *retval) 
 
 	DEBUG(DB_SYSCALL, "sys_execv: Program name copied: %s\n", kprogram);
 
+	// Copy user arguments into kernel address space
 	for (int i = 0; i < argc; i++) {
-		size_t arglen;
-		char karg[EXECV_MAX_ARG_SIZE];
-		copyresult = copyinstr(args[i], karg, EXECV_MAX_ARG_SIZE, &arglen);
+		size_t got;
+		size_t arglen = strlen(((char **)args)[i]) + 1; // + 1 for '\0'
+		copyresult = copyinstr(args[i], (char *)(kargsraw + copiedsofar), arglen, &got);
 		if (copyresult) {
 			// Copy error
 			DEBUG(DB_SYSCALL, "sys_execv: Program argument copy error");
 			*retval = copyresult;
 			return 1;
 		}
-		kargs[i] = karg;
-		totalargslen += arglen;
+		kargs[i] = kargsraw + copiedsofar;
+		copiedsofar += got;
 		DEBUG(DB_SYSCALL, "sys_execv: Program argument copied: %s\n", kargs[i]);
 	}
 
-	if (totalargslen > ARG_MAX) {
-		// Total length of arguments is too large
-		*retval = E2BIG;
-		return 1;
-	}
-
-	kargs[argc + 1] = NULL; // empty string
-
-	int i = 0;
-	while (kargs[i] != NULL) {
-		DEBUG(DB_SYSCALL, "sys_execv: %dth execv param: %s\n", i + 1, kargs[i]);
-		i++;
-	}
+	kargs[argc + 1] = NULL; // last arg should be NULL
 
 	int err = runprogram(kprogram, kargs);
 

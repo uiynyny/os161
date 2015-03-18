@@ -201,13 +201,18 @@ int sys_execv(const_userptr_t program, const_userptr_t args[], int32_t *retval) 
 	// Copy the arguments into the address space
 	int argc = 0;
 
+	DEBUG(DB_SYSCALL, "sys_execv: Entering execv syscall\n");
+
 	// Figure out how many arguments there are
 	while (args[argc] != NULL) argc++;
 	if (argc + 1 > ARG_MAX / EXECV_MAX_ARG_SIZE) {
 		// Too many
+		DEBUG(DB_SYSCALL, "sys_execv: Too many execv arguments (%d)\n", argc);
 		*retval = E2BIG;
 		return 1;
 	}
+
+	DEBUG(DB_SYSCALL, "sys_execv: Calling %s with %d arguments\n", (char *)program, argc);
 
 	// Copy user arguments into kernel address space
 	// +1 to account for null at the end
@@ -220,9 +225,12 @@ int sys_execv(const_userptr_t program, const_userptr_t args[], int32_t *retval) 
 	copyresult = copyinstr(program, kprogram, EXECV_MAX_ARG_SIZE, &totalargslen);
 	if (copyresult) {
 		// Copy error
+		DEBUG(DB_SYSCALL, "sys_execv: Program name copy error\n");
 		*retval = copyresult;
 		return 1;
 	}
+
+	DEBUG(DB_SYSCALL, "sys_execv: Program name copied: %s\n", kprogram);
 
 	for (int i = 0; i < argc; i++) {
 		size_t arglen;
@@ -230,11 +238,13 @@ int sys_execv(const_userptr_t program, const_userptr_t args[], int32_t *retval) 
 		copyresult = copyinstr(args[i], karg, EXECV_MAX_ARG_SIZE, &arglen);
 		if (copyresult) {
 			// Copy error
+			DEBUG(DB_SYSCALL, "sys_execv: Program argument copy error");
 			*retval = copyresult;
 			return 1;
 		}
 		kargs[i] = karg;
 		totalargslen += arglen;
+		DEBUG(DB_SYSCALL, "sys_execv: Program argument copied: %s\n", kargs[i]);
 	}
 
 	if (totalargslen > ARG_MAX) {
@@ -244,6 +254,12 @@ int sys_execv(const_userptr_t program, const_userptr_t args[], int32_t *retval) 
 	}
 
 	kargs[argc + 1] = NULL; // empty string
+
+	int i = 0;
+	while (kargs[i] != NULL) {
+		DEBUG(DB_SYSCALL, "sys_execv: %dth execv param: %s\n", i + 1, kargs[i]);
+		i++;
+	}
 
 	int err = runprogram(kprogram, kargs);
 

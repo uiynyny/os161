@@ -12,6 +12,11 @@
 #include <copyinout.h>
 #include <synch.h>
 #include <array.h>
+#include <limits.h>
+#include <test.h>
+
+// Maximum length of a single execv argument (1024 in this case)
+#define EXECV_MAX_ARG_SIZE PATH_MAX
 
 /* this implementation of sys__exit does not do anything with the exit code */
 /* this needs to be fixed to get exit() and waitpid() working properly */
@@ -186,4 +191,72 @@ int sys_waitpid(pid_t pid, userptr_t status, int options, pid_t *retval) {
 
 	*retval = pid;
 	return 0;
+}
+
+/**
+	execv implementation
+*/
+int sys_execv(const_userptr_t program, const_userptr_t args[], int32_t *retval) {
+
+	DEBUG(DB_SYSCALL, "sys_execv: Entering execv syscall\n");
+
+	unsigned long argc = 0;
+
+	size_t programlen = strlen((char *)program) + 1; // + 1 for '\0'
+	size_t totalargslen = 0;
+
+	// Figure out how many arguments there are
+	while (args[argc] != NULL) {
+		totalargslen += strlen(((char **)args)[argc]) + 1; // + 1 for '\0'
+		argc++;
+	}
+
+	if (programlen + totalargslen > ARG_MAX || argc > ARG_MAX / EXECV_MAX_ARG_SIZE) {
+		// Args too big
+		DEBUG(DB_SYSCALL, "sys_execv: Too many execv arguments ");
+		DEBUG(DB_SYSCALL, "(%lu arguments with a total length of %d)\n", argc, totalargslen);
+		*retval = E2BIG;
+		return 1;
+	}
+
+	DEBUG(DB_SYSCALL, "sys_execv: Calling %s with %lu arguments\n", (char *)program, argc);
+
+	char kprogram[programlen];
+	char kargsraw[totalargslen]; // string containing all args
+	char *kargs[argc];
+	int copyresult;
+	int copiedsofar = 0; // number of characters copied so far
+
+	// Copy program name into `kprogram`
+	copyresult = copyinstr(program, kprogram, programlen, NULL);
+	if (copyresult) {
+		// Copy error
+		DEBUG(DB_SYSCALL, "sys_execv: Program name copy error\n");
+		*retval = copyresult;
+		return 1;
+	}
+
+	DEBUG(DB_SYSCALL, "sys_execv: Program name copied: %s\n", kprogram);
+
+	// Copy user arguments into kernel address space
+	for (unsigned long i = 0; i < argc; i++) {
+		size_t got;
+		size_t arglen = strlen(((char **)args)[i]) + 1; // + 1 for '\0'
+		copyresult = copyinstr(args[i], (char *)(kargsraw + copiedsofar), arglen, &got);
+		if (copyresult) {
+			// Copy error
+			DEBUG(DB_SYSCALL, "sys_execv: Program argument copy error");
+			*retval = copyresult;
+			return 1;
+		}
+		kargs[i] = kargsraw + copiedsofar;
+		copiedsofar += got;
+		DEBUG(DB_SYSCALL, "sys_execv: Program argument copied: %s\n", kargs[i]);
+	}
+
+	int err = runprogram(kprogram, kargs, argc);
+
+	// Should not return, this implies an error
+	*retval = err;
+	return 1;
 }

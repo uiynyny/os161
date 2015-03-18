@@ -36,6 +36,7 @@
 #include <thread.h>
 #include <proc.h>
 #include <current.h>
+#include <copyinout.h>
 #include <syscall.h>
 
 
@@ -138,6 +139,9 @@ void syscall(struct trapframe *tf) {
 			(int)tf->tf_a2,
 			(pid_t *)&retval
 		);
+		break;
+	case SYS_execv:
+		err = sys_execv((const_userptr_t)tf->tf_a0, (const_userptr_t *)tf->tf_a1, &retval);
 		break;
 #endif // UW
 

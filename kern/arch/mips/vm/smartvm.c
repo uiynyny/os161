@@ -53,16 +53,12 @@
  */
 static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
 
-void
-vm_bootstrap(void)
+void vm_bootstrap(void)
 {
 	/* Do nothing. */
 }
 
-static
-paddr_t
-getppages(unsigned long npages)
-{
+static paddr_t getppages(unsigned long npages) {
 	paddr_t addr;
 
 	spinlock_acquire(&stealmem_lock);
@@ -74,9 +70,7 @@ getppages(unsigned long npages)
 }
 
 /* Allocate/free some kernel-space virtual pages */
-vaddr_t
-alloc_kpages(int npages)
-{
+vaddr_t alloc_kpages(int npages) {
 	paddr_t pa;
 	pa = getppages(npages);
 	if (pa==0) {
@@ -85,30 +79,22 @@ alloc_kpages(int npages)
 	return PADDR_TO_KVADDR(pa);
 }
 
-void
-free_kpages(vaddr_t addr)
-{
+void free_kpages(vaddr_t addr) {
 	/* nothing - leak the memory. */
 
 	(void)addr;
 }
 
-void
-vm_tlbshootdown_all(void)
-{
+void vm_tlbshootdown_all(void) {
 	panic("smartvm tried to do tlb shootdown?!\n");
 }
 
-void
-vm_tlbshootdown(const struct tlbshootdown *ts)
-{
+void vm_tlbshootdown(const struct tlbshootdown *ts) {
 	(void)ts;
 	panic("smartvm tried to do tlb shootdown?!\n");
 }
 
-int
-vm_fault(int faulttype, vaddr_t faultaddress)
-{
+int vm_fault(int faulttype, vaddr_t faultaddress) {
 	vaddr_t vbase1, vtop1, vbase2, vtop2, stackbase, stacktop;
 	paddr_t paddr;
 	int i;
@@ -207,9 +193,7 @@ vm_fault(int faulttype, vaddr_t faultaddress)
 	return EFAULT;
 }
 
-struct addrspace *
-as_create(void)
-{
+struct addrspace * as_create(void) {
 	struct addrspace *as = kmalloc(sizeof(struct addrspace));
 	if (as==NULL) {
 		return NULL;
@@ -226,15 +210,11 @@ as_create(void)
 	return as;
 }
 
-void
-as_destroy(struct addrspace *as)
-{
+void as_destroy(struct addrspace *as) {
 	kfree(as);
 }
 
-void
-as_activate(void)
-{
+void as_activate(void) {
 	int i, spl;
 	struct addrspace *as;
 
@@ -256,16 +236,14 @@ as_activate(void)
 	splx(spl);
 }
 
-void
-as_deactivate(void)
-{
+void as_deactivate(void) {
 	/* nothing */
 }
 
-int
-as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
-		 int readable, int writeable, int executable)
-{
+int as_define_region(
+	struct addrspace *as, vaddr_t vaddr, size_t sz,
+	int readable, int writeable, int executable
+) {
 	size_t npages;
 
 	/* Align the region. First, the base... */
@@ -301,16 +279,11 @@ as_define_region(struct addrspace *as, vaddr_t vaddr, size_t sz,
 	return EUNIMP;
 }
 
-static
-void
-as_zero_region(paddr_t paddr, unsigned npages)
-{
+static void as_zero_region(paddr_t paddr, unsigned npages) {
 	bzero((void *)PADDR_TO_KVADDR(paddr), npages * PAGE_SIZE);
 }
 
-int
-as_prepare_load(struct addrspace *as)
-{
+int as_prepare_load(struct addrspace *as) {
 	KASSERT(as->as_pbase1 == 0);
 	KASSERT(as->as_pbase2 == 0);
 	KASSERT(as->as_stackpbase == 0);
@@ -337,25 +310,19 @@ as_prepare_load(struct addrspace *as)
 	return 0;
 }
 
-int
-as_complete_load(struct addrspace *as)
-{
+int as_complete_load(struct addrspace *as) {
 	(void)as;
 	return 0;
 }
 
-int
-as_define_stack(struct addrspace *as, vaddr_t *stackptr)
-{
+int as_define_stack(struct addrspace *as, vaddr_t *stackptr) {
 	KASSERT(as->as_stackpbase != 0);
 
 	*stackptr = USERSTACK;
 	return 0;
 }
 
-int
-as_copy(struct addrspace *old, struct addrspace **ret)
-{
+int as_copy(struct addrspace *old, struct addrspace **ret) {
 	struct addrspace *new;
 
 	new = as_create();

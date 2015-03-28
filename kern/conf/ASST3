@@ -1,4 +1,4 @@
-# Kernel config file for assignment 3.
+## Kernel config file for assignment 3.
 
 include conf/conf.kern		# get definitions of available options
 
@@ -31,7 +31,8 @@ options sfs			# Always use the file system
 #options netfs			# Not until assignment 5 (if you choose it)
 
 # UW mod
-options dumbvm			# start with dumbvm still enabled
+#options dumbvm			# start with dumbvm still enabled
+options smartvm			# New and improved VM
 #options synchprobs		# No longer needed/wanted after asst. 1
 
 # UW options for assignment 1 + 2 + 3

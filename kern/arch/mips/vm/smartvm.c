@@ -48,6 +48,9 @@
 /* under smartvm, always have 48k of user stack */
 #define SMARTVM_STACKPAGES    12
 
+// Is the TLB currently full?
+static bool tlb_full = false;
+
 /*
  * Wrap rma_stealmem in a spinlock.
  */
@@ -175,7 +178,7 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	/* Disable interrupts on this CPU while frobbing the TLB. */
 	spl = splhigh();
 
-	for (i=0; i<NUM_TLB; i++) {
+	for (i=0; !tlb_full && i < NUM_TLB; i++) {
 		tlb_read(&ehi, &elo, i);
 		if (elo & TLBLO_VALID) {
 			continue;
@@ -188,9 +191,16 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 		return 0;
 	}
 
-	kprintf("smartvm: Ran out of TLB entries - cannot handle page fault\n");
+	// TODO set this back to false when TLB is invalidated
+	tlb_full = true;
+
+	// If we reached this point the TLB is full
+	// Evict and write to a random page for now
+	ehi = faultaddress;
+	elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
+	tlb_random(ehi, elo);
 	splx(spl);
-	return EFAULT;
+	return 0;
 }
 
 struct addrspace * as_create(void) {

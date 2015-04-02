@@ -105,13 +105,13 @@ void vm_bootstrap(void) {
 	When more than one page is required, the coremap entry will have the index
 	of the next page (the last page will have an index of -1).
 */
-int getppageid(unsigned long npages, unsigned long startat) {
+int getppageid(unsigned long npages) {
 
 	int result = -1;
 	struct coremapentry* previousrow = NULL;
 	int i;
 
-	for (i = startat; i < totalpagecount && npages > 0; i++) {
+	for (i = 0; i < totalpagecount && npages > 0; i++) {
 		struct coremapentry* row = (coremap + i);
 		if (row->used) continue;
 		row->used = true;
@@ -140,7 +140,7 @@ static paddr_t getppages(unsigned long npages) {
 	spinlock_acquire(&stealmem_lock);
 
 	if (coremapsetup) {
-		addr = (paddr_t)(pmemstart + getppageid(npages, 0) * PAGE_SIZE);
+		addr = (paddr_t)(pmemstart + getppageid(npages) * PAGE_SIZE);
 	} else {
 		addr = ram_stealmem(npages);
 	}
@@ -162,12 +162,13 @@ vaddr_t alloc_kpages(int npages) {
 void free_kpages(vaddr_t addr) {
 
 	// (void)addr;
-	// TODO: check if physical address is in the right bounds
+	// TODO: check if physical address is in the right bounds?
+
 	paddr_t paddr = KVADDR_TO_PADDR(addr);
 	KASSERT(paddr % PAGE_SIZE == 0); // must be the address of a page
 
 	// convert physical address to page number
-	int pagenumber = (paddr - pmemend) / PAGE_SIZE;
+	int pagenumber = (paddr - pmemstart) / PAGE_SIZE;
 
 	do {
 		// Free the page
@@ -320,6 +321,14 @@ struct addrspace * as_create(void) {
 }
 
 void as_destroy(struct addrspace *as) {
+	// Delete all allocated segments
+	// quick way of cleaning by passing in physical page
+	// Should probably have a separate function for this.
+	free_kpages(PADDR_TO_KVADDR(as->as_pbase1));
+	free_kpages(PADDR_TO_KVADDR(as->as_pbase2));
+	free_kpages(PADDR_TO_KVADDR(as->as_stackpbase));
+
+	// Finally, free up the actual address space structure
 	kfree(as);
 }
 

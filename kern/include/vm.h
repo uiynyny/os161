@@ -60,7 +60,7 @@ struct coremapentry {
 };
 
 // Coremap helper method
-int getppageid(unsigned long npages, unsigned long startat);
+int getppageid(unsigned long npages);
 
 /* Initialization function */
 void vm_bootstrap(void);

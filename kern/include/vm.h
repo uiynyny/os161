@@ -45,11 +45,32 @@
 #define VM_FAULT_READONLY    2    /* A write to a readonly page was attempted*/
 
 
+int totalpagecount;
+paddr_t pmemstart;
+paddr_t pmemend;
+
+/**
+	Core map ent
+*/
+struct coremapentry {
+	bool used; // is this core-map entry being used
+	int nextentry; // if this is a contiguous entry, the next entry should >= 0
+
+	// TODO: RWX here maybe? Could be a quick way of doing it.
+};
+
+// Coremap helper method
+int getppageid(unsigned long npages, unsigned long startat);
+
 /* Initialization function */
 void vm_bootstrap(void);
 
 /* Fault handling function called by trap code */
 int vm_fault(int faulttype, vaddr_t faultaddress);
+
+/* Convert virtual address to physical
+(so long as virtual page is in Coremap) */
+paddr_t vaddr_to_paddr(vaddr_t addr, vaddr_t vbase, paddr_t pbase);
 
 /* Allocate/free kernel heap pages (called by kmalloc/kfree) */
 vaddr_t alloc_kpages(int npages);

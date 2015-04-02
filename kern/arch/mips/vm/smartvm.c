@@ -48,17 +48,90 @@
 /* under smartvm, always have 48k of user stack */
 #define SMARTVM_STACKPAGES    12
 
+/**
+	A coremap is an array of coremapentry instances
+	If memory is n pages large, and the ith page is being used, the ith
+	element of coremap will have used == true
+
+	This array is contiguous in memory
+*/
+static struct coremapentry *coremap = NULL;
+
+static bool coremapsetup = false;
+
 // Is the TLB currently full?
-static bool tlb_full = false;
+static bool tlbfull = false;
 
 /*
  * Wrap rma_stealmem in a spinlock.
  */
 static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
 
-void vm_bootstrap(void)
-{
-	/* Do nothing. */
+void vm_bootstrap(void) {
+
+	paddr_t lo, hi;
+	ram_getsize(&lo, &hi);
+
+	// How many pages do we need for this?
+	totalpagecount = (hi - lo) / PAGE_SIZE;
+
+	int coremapsize = sizeof(struct coremapentry) * totalpagecount;
+	int pagesforcoremap = (coremapsize + PAGE_SIZE - 1)/PAGE_SIZE;
+
+
+	paddr_t coremapploc = ram_stealmem(pagesforcoremap);
+	totalpagecount -= pagesforcoremap; // a few pages are now unavailable
+	coremap = (struct coremapentry *)PADDR_TO_KVADDR(coremapploc);
+
+	// Zero out all the core map entries
+	for (int i = 0; i < totalpagecount; i++) {
+		(coremap + i)->used = false;
+		(coremap + i)->nextentry = -1;
+	}
+
+	// Recalc ramsize again
+	ram_getsize(&lo, &hi);
+
+	// makes sure ram_getsize or ram_stealmem can't be called again
+	unset_ramsize(); // (used to be called at the ned of ram_getsize)
+
+	pmemstart = lo;
+	pmemend = hi;
+	coremapsetup = true;
+}
+
+/**
+	Get the address of a free physical page, allocating as we go
+	When more than one page is required, the coremap entry will have the index
+	of the next page (the last page will have an index of -1).
+*/
+int getppageid(unsigned long npages, unsigned long startat) {
+
+	int result = -1;
+	struct coremapentry* previousrow = NULL;
+	int i;
+
+	for (i = startat; i < totalpagecount && npages > 0; i++) {
+		struct coremapentry* row = (coremap + i);
+		if (row->used) continue;
+		row->used = true;
+
+		if (previousrow == NULL) {
+			result = i;
+		} else {
+			previousrow->nextentry = i;
+		}
+		previousrow = row;
+
+		if (--npages == 0) break;
+	}
+
+	if (i == totalpagecount) {
+		// Did not break before finding a page
+		panic("Out of memory. No more pages to allocate");
+	}
+
+	return result;
 }
 
 static paddr_t getppages(unsigned long npages) {
@@ -66,7 +139,11 @@ static paddr_t getppages(unsigned long npages) {
 
 	spinlock_acquire(&stealmem_lock);
 
-	addr = ram_stealmem(npages);
+	if (coremapsetup) {
+		addr = (paddr_t)(pmemstart + getppageid(npages, 0) * PAGE_SIZE);
+	} else {
+		addr = ram_stealmem(npages);
+	}
 
 	spinlock_release(&stealmem_lock);
 	return addr;
@@ -83,9 +160,22 @@ vaddr_t alloc_kpages(int npages) {
 }
 
 void free_kpages(vaddr_t addr) {
-	/* nothing - leak the memory. */
 
-	(void)addr;
+	// (void)addr;
+	// TODO: check if physical address is in the right bounds
+	paddr_t paddr = KVADDR_TO_PADDR(addr);
+	KASSERT(paddr % PAGE_SIZE == 0); // must be the address of a page
+
+	// convert physical address to page number
+	int pagenumber = (paddr - pmemend) / PAGE_SIZE;
+
+	do {
+		// Free the page
+		struct coremapentry * kpage = (coremap + pagenumber);
+		KASSERT(kpage->used); // Crash if this is an unused page
+		kpage->used = false;
+		pagenumber = kpage->nextentry;
+	} while (pagenumber >= 0);
 }
 
 void vm_tlbshootdown_all(void) {
@@ -160,15 +250,12 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	stacktop = USERSTACK;
 
 	if (faultaddress >= vbase1 && faultaddress < vtop1) {
-		paddr = (faultaddress - vbase1) + as->as_pbase1;
-	}
-	else if (faultaddress >= vbase2 && faultaddress < vtop2) {
-		paddr = (faultaddress - vbase2) + as->as_pbase2;
-	}
-	else if (faultaddress >= stackbase && faultaddress < stacktop) {
-		paddr = (faultaddress - stackbase) + as->as_stackpbase;
-	}
-	else {
+		paddr = vaddr_to_paddr(faultaddress,  vbase1, as->as_pbase1);
+	} else if (faultaddress >= vbase2 && faultaddress < vtop2) {
+		paddr = vaddr_to_paddr(faultaddress,  vbase2, as->as_pbase2);
+	} else if (faultaddress >= stackbase && faultaddress < stacktop) {
+		paddr = vaddr_to_paddr(faultaddress, stackbase, as->as_stackpbase);
+	} else {
 		return EFAULT;
 	}
 
@@ -178,7 +265,7 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	/* Disable interrupts on this CPU while frobbing the TLB. */
 	spl = splhigh();
 
-	for (i=0; !tlb_full && i < NUM_TLB; i++) {
+	for (i=0; !tlbfull && i < NUM_TLB; i++) {
 		tlb_read(&ehi, &elo, i);
 		if (elo & TLBLO_VALID) {
 			continue;
@@ -191,8 +278,7 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 		return 0;
 	}
 
-	// TODO set this back to false when TLB is invalidated
-	tlb_full = true;
+	tlbfull = true;
 
 	// If we reached this point the TLB is full
 	// Evict and write to a random page for now
@@ -201,6 +287,19 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	tlb_random(ehi, elo);
 	splx(spl);
 	return 0;
+}
+
+/**
+	Follows the coremap to find the correct physical address
+*/
+paddr_t vaddr_to_paddr(vaddr_t addr, vaddr_t vbase, paddr_t pbase) {
+	int pagenumber = (pbase - pmemstart) / PAGE_SIZE;
+	struct coremapentry * entry = coremap + pagenumber;
+	for (size_t i = 0; i < (addr - vbase) / PAGE_SIZE; i++) {
+		pagenumber = entry->nextentry;
+		entry = coremap + pagenumber;
+	}
+	return (paddr_t)(pmemstart + (pagenumber * PAGE_SIZE) + (addr % PAGE_SIZE));
 }
 
 struct addrspace * as_create(void) {
@@ -242,6 +341,7 @@ void as_activate(void) {
 	for (i=0; i<NUM_TLB; i++) {
 		tlb_write(TLBHI_INVALID(i), TLBLO_INVALID(), i);
 	}
+	tlbfull = false;
 
 	splx(spl);
 }

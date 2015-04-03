@@ -128,6 +128,7 @@ int getppageid(unsigned long npages) {
 
 	if (i == totalpagecount) {
 		// Did not break before finding a page
+		// TODO: Evict page from memory into swap file
 		panic("Out of memory. No more pages to allocate");
 	}
 
@@ -170,12 +171,14 @@ void free_kpages(vaddr_t addr) {
 	// convert physical address to page number
 	int pagenumber = (paddr - pmemstart) / PAGE_SIZE;
 
+	// Keep grabbing the next page and free it
 	do {
 		// Free the page
 		struct coremapentry * kpage = (coremap + pagenumber);
 		KASSERT(kpage->used); // Crash if this is an unused page
 		kpage->used = false;
 		pagenumber = kpage->nextentry;
+		kpage->nextentry = -1;
 	} while (pagenumber >= 0);
 }
 

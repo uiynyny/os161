@@ -67,6 +67,10 @@ static bool tlbfull = false;
  */
 static struct spinlock stealmem_lock = SPINLOCK_INITIALIZER;
 
+/**
+	TODO: Rename to not-so-smartvm.c
+	TODO: Dynamic segments for processes using Segmentation and Paging translation
+*/
 void vm_bootstrap(void) {
 
 	paddr_t lo, hi;
@@ -129,7 +133,7 @@ int getppageid(unsigned long npages) {
 	if (i == totalpagecount) {
 		// Did not break before finding a page
 		// TODO: Evict page from memory into swap file
-		panic("Out of memory. No more pages to allocate");
+		panic("Out of memory. No more pages to allocate\n");
 	}
 
 	return result;
@@ -252,16 +256,24 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	vtop2 = vbase2 + as->as_npages2 * PAGE_SIZE;
 	stackbase = USERSTACK - SMARTVM_STACKPAGES * PAGE_SIZE;
 	stacktop = USERSTACK;
+	bool dirtiable;
 
 	if (faultaddress >= vbase1 && faultaddress < vtop1) {
 		paddr = vaddr_to_paddr(faultaddress,  vbase1, as->as_pbase1);
+		dirtiable = as->as_dirtiable1;
 	} else if (faultaddress >= vbase2 && faultaddress < vtop2) {
 		paddr = vaddr_to_paddr(faultaddress,  vbase2, as->as_pbase2);
+		dirtiable = as->as_dirtiable2;
 	} else if (faultaddress >= stackbase && faultaddress < stacktop) {
 		paddr = vaddr_to_paddr(faultaddress, stackbase, as->as_stackpbase);
+		dirtiable = true;
 	} else {
 		return EFAULT;
 	}
+
+	// if not yet ready, we're still loading segments
+	// Will always be dirtiable in this case
+	if (!as->as_ready) dirtiable = true;
 
 	/* make sure it's page-aligned */
 	KASSERT((paddr & PAGE_FRAME) == paddr);
@@ -275,7 +287,7 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 			continue;
 		}
 		ehi = faultaddress;
-		elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
+		elo = paddr | (dirtiable ? TLBLO_DIRTY : 0) | TLBLO_VALID;
 		DEBUG(DB_VM, "smartvm: 0x%x -> 0x%x\n", faultaddress, paddr);
 		tlb_write(ehi, elo, i);
 		splx(spl);
@@ -287,7 +299,7 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	// If we reached this point the TLB is full
 	// Evict and write to a random page for now
 	ehi = faultaddress;
-	elo = paddr | TLBLO_DIRTY | TLBLO_VALID;
+	elo = paddr | (dirtiable ? TLBLO_DIRTY : 0) | TLBLO_VALID;
 	tlb_random(ehi, elo);
 	splx(spl);
 	return 0;
@@ -315,10 +327,16 @@ struct addrspace * as_create(void) {
 	as->as_vbase1 = 0;
 	as->as_pbase1 = 0;
 	as->as_npages1 = 0;
+	as->as_dirtiable1 = false;
+
 	as->as_vbase2 = 0;
 	as->as_pbase2 = 0;
 	as->as_npages2 = 0;
+	as->as_dirtiable2 = false;
+
 	as->as_stackpbase = 0;
+
+	as->as_ready = false;
 
 	return as;
 }
@@ -378,19 +396,22 @@ int as_define_region(
 	npages = sz / PAGE_SIZE;
 
 	/* We don't use these - all pages are read-write */
+	bool dirtiable = (bool)(writeable >> 1);
 	(void)readable;
-	(void)writeable;
+	// (void)writeable;
 	(void)executable;
 
 	if (as->as_vbase1 == 0) {
 		as->as_vbase1 = vaddr;
 		as->as_npages1 = npages;
+		as->as_dirtiable1 = dirtiable;
 		return 0;
 	}
 
 	if (as->as_vbase2 == 0) {
 		as->as_vbase2 = vaddr;
 		as->as_npages2 = npages;
+		as->as_dirtiable2 = dirtiable;
 		return 0;
 	}
 
@@ -433,7 +454,7 @@ int as_prepare_load(struct addrspace *as) {
 }
 
 int as_complete_load(struct addrspace *as) {
-	(void)as;
+	as->as_ready = true;
 	return 0;
 }
 

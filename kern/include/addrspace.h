@@ -51,10 +51,17 @@ struct addrspace {
   vaddr_t as_vbase1;
   paddr_t as_pbase1;
   size_t as_npages1;
+  bool as_dirtiable1;
+
   vaddr_t as_vbase2;
   paddr_t as_pbase2;
   size_t as_npages2;
+  bool as_dirtiable2;
+
   paddr_t as_stackpbase;
+
+  // The address space is officially ready
+  bool as_ready;
 };
 
 /*

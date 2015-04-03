@@ -37,6 +37,7 @@
 #include <mips/tlb.h>
 #include <addrspace.h>
 #include <vm.h>
+#include <syscall.h>
 
 /*
  * Dumb MIPS-only "VM system" that is intended to only be just barely
@@ -210,7 +211,9 @@ int vm_fault(int faulttype, vaddr_t faultaddress) {
 	switch (faulttype) {
 	    case VM_FAULT_READONLY:
 		/* We always create pages read-write, so we can't get this */
-		panic("smartvm: got VM_FAULT_READONLY\n");
+		kprintf("VM error: User process attempted write to read-only memory.\n");
+		sys__exit(faulttype);
+
 	    case VM_FAULT_READ:
 	    case VM_FAULT_WRITE:
 		break;

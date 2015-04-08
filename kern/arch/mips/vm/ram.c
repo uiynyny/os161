@@ -122,5 +122,8 @@ ram_getsize(paddr_t *lo, paddr_t *hi)
 {
 	*lo = firstpaddr;
 	*hi = lastpaddr;
+}
+
+void unset_ramsize(void) {
 	firstpaddr = lastpaddr = 0;
 }
